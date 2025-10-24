@@ -1,0 +1,418 @@
+
+
+/* General Layout */
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f7fb;
+  color: #334155; /* Tailwind slate-700 */
+  margin: 0;
+}
+
+header {
+  background: #3b82f6; /* Tailwind blue-500 */
+  color: white;
+  padding: 0;
+  text-align: left;
+}
+
+/*  Dashboard */
+.winner-box {
+  background: #fef3c7; /* Tailwind amber-100 */
+  padding: 15px;
+  margin-bottom: 20px;
+  border-left: 5px solid #f59e0b; /* Tailwind amber-500 */
+  border-radius: 8px;
+}
+.winner-box h3 {
+  margin: 0;
+  font-size: 22px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+table th,
+table td {
+  border: 1px solid #e5e7eb;
+  padding: 10px;
+  text-align: center;
+}
+table th {
+  background: #3b82f6;
+  color: white;
+}
+
+/* ===== Teams ===== */
+.form-box {
+  margin: 15px 0;
+}
+#participantsList {
+  list-style: none;
+  padding: 0;
+}
+#participantsList li {
+  padding: 8px;
+  background: #e0f2fe; /* Tailwind sky-100 */
+  margin: 5px 0;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+#participantsList li:hover {
+  background: #bae6fd; /* Tailwind sky-200 */
+}
+
+/*  Process / Glass Cards */
+.backdrop-blur-md {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.6);
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  margin-bottom: 2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.backdrop-blur-md:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Criteria Boxes  */
+.criteria-box {
+  margin: 15px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.criteria-box label {
+  background: #f9fafb;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #e5e7eb;
+}
+
+/*  Logs  */
+.logs {
+  background: #fff3cd;
+  padding: 10px;
+  border-radius: 8px;
+}
+.logs ul {
+  list-style: none;
+  padding: 0;
+}
+.logs li {
+  padding: 5px;
+  border-bottom: 1px solid #ddd;
+}
+
+/*  Scoreboard Custom Styles  */
+.scoreboard-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.02));
+  box-shadow: 0 6px 20px -12px rgba(0, 0, 0, 0.3);
+}
+
+/* initial / avatar circle */
+.scoreboard-initial {
+  flex: 0 0 64px;
+  height: 64px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 22px;
+  color: white;
+  background: linear-gradient(180deg, #22c55e, #16a34a); /* Tailwind greens */
+  box-shadow: inset 0 -6px 18px rgba(0, 0, 0, 0.12);
+}
+
+/* bar container */
+.scorebar-wrap {
+  position: relative;
+  flex: 1;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  padding: 6px;
+}
+
+/* track */
+.scorebar-track {
+  width: 100%;
+  height: 48px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px solid rgba(34, 197, 94, 0.18);
+  overflow: hidden;
+  position: relative;
+}
+
+/* fill */
+.scorebar-fill {
+  position: absolute;
+  left: 6px;
+  top: 6px;
+  height: calc(100% - 12px);
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+  width: 0%;
+  transition: width 800ms cubic-bezier(.18, .9, .4, 1);
+  box-shadow: 0 6px 20px rgba(5, 150, 105, 0.18),
+    inset 0 -6px 18px rgba(0, 0, 0, 0.12);
+}
+
+/* percentage label */
+.score-percentage {
+  flex: 0 0 110px;
+  text-align: right;
+  font-weight: 800;
+  font-size: 28px;
+  color: #0f172a;
+  padding-right: 8px;
+}
+
+/* inside-bar label */
+.score-inside-label {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  font-size: 16px;
+}
+
+/* small responsive tweaks */
+@media (max-width: 640px) {
+  .scoreboard-initial {
+    flex: 0 0 48px;
+    height: 48px;
+    font-size: 16px;
+    border-radius: 8px;
+  }
+  .scorebar-wrap {
+    height: 48px;
+  }
+  .scorebar-track {
+    height: 36px;
+  }
+  .score-percentage {
+    font-size: 20px;
+  }
+}
+
+/*  Scoreboard Anonymous Card */
+#scoreboardContainer {
+  max-width: 90rem;
+  margin-left: auto;
+  margin-right: auto;
+  gap: 3rem;
+}
+
+.anon-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  border-radius: 1.25rem;
+  padding: 2rem 1.5rem;
+  width: 240px;
+  height: 300px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.45);
+  transition: transform 0.4s ease, box-shadow 0.4s ease, filter 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+.anon-card:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.55);
+  filter: brightness(1.1);
+}
+
+/* light sheen animation in anonymous score board */
+.anon-card::before {
+  content: "";
+  position: absolute;
+  top: -100%;
+  left: -150%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.12) 0%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 255, 255, 0.12) 100%
+  );
+  transform: rotate(25deg);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.anon-card:hover::before {
+  top: -50%;
+  left: -50%;
+  opacity: 1;
+  animation: sheenMove 1.2s ease-in-out;
+}
+
+@keyframes sheenMove {
+  from {
+    transform: translateX(-50%) rotate(25deg);
+  }
+  to {
+    transform: translateX(150%) rotate(25deg);
+  }
+}
+
+/* avatar */
+.anon-avatar {
+  width: 100%;
+  height: 180px;
+  background: url("Anonymous photo.jpg") center center/contain no-repeat;
+  border-radius: 0.75rem;
+  margin-bottom: 1rem;
+}
+.anon-name {
+  color: #e5e7eb;
+  font-weight: 600;
+  margin-top: 0.25rem;
+  display: none;
+}
+.anon-percent {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #22c55e;
+  margin-top: 0.75rem;
+}
+.anon-avatar-img {
+  border: 4px solid #374151;
+  border-radius: 9999px;
+  max-width: 140px;
+  max-height: 140px;
+  object-fit: cover;
+}
+
+/*  Inputs & Validation */
+input[type=number] {
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+input[type=number]:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
+}
+
+input + span {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+input.border-red-500 + span {
+  opacity: 1;
+}
+input.border-red-500 {
+  border-width: 2px;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+  transition: all 0.3s ease;
+}
+input.valid-score {
+  border-width: 2px;
+  border-color: #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.4);
+  transition: all 0.3s ease;
+}
+
+/* Floating Animation this one  */
+@keyframes floatSimple {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+.animate-float-simple {
+  animation: floatSimple 3s ease-in-out infinite;
+}
+
+/* Judging Criteria Modal - Wide & Readable  */
+#criteriaModal > div {
+  max-width: 750px;           /* wider card */
+  width: 90%;                 /* responsive */
+  max-height: 80vh;           /* cap height to 80% of viewport */
+  overflow-y: auto;           /* scroll if content exceeds height */
+  padding: 30px 40px;         /* comfortable padding */
+  border-radius: 1.5rem;      /* rounded corners */
+  box-shadow: 0 12px 30px rgba(0,0,0,0.25); /* subtle shadow */
+  background-color: rgba(255,255,255,0.95); /* slightly opaque */
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Text Styling Inside Modal */
+#criteriaList p {
+  font-size: 1rem;             /* readable font size */
+  line-height: 1.5rem;         /* comfortable line height */
+  margin: 4px 0;               /* slight spacing between lines */
+}
+
+/* Bold titles of each criteria */
+#criteriaList p strong {
+  font-size: 1.1rem;           /* slightly bigger for titles */
+  color: #4f46e5;              /* Indigo-600 for aesthetics */
+}
+
+/* Editable form tweaks */
+#criteriaEditForm input,
+#criteriaEditForm textarea {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  
+}
+
+/* Remove number input arrows (spinner)  */
+input[type=number] {
+  -webkit-appearance: none; /* Chrome, Safari, Edge, Opera */
+  -moz-appearance: textfield; /* Firefox */
+  appearance: none; /* Standard modern browsers */
+  margin: 0; /* Ensure no extra spacing */
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+html {
+  overflow-y: scroll;
+}
+
+/* Criteria Message Animation  */
+#criteriaSaveMessage {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  color: #16a34a; /* success green color */
+  font-weight: 600;
+  pointer-events: none; /* avoids blocking clicks */
+}
+
+#criteriaSaveMessage.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
