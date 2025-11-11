@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin</title>
+  <!-- Tailwind CSS CDN for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- External CSS for custom styling -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100">
+
+  <!-- ====================== NAVIGATION BAR =========================== -->
+  <nav class="bg-white shadow-md fixed w-full top-0 left-0 z-50">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="flex justify-end h-16 items-center gap-6">
+        <a href="#dashboard" class="relative px-3 py-2 font-semibold text-gray-800 hover:text-blue-600 transition">Dashboard</a>
+        <a href="#scoreboard" class="relative px-3 py-2 font-semibold text-gray-800 hover:text-green-600 transition">Scoreboard</a>
+        <button id="processBtn" class="relative px-3 py-2 font-semibold text-gray-800 hover:text-yellow-500 transition">Process</button>
+        <a href="#metrics" class="relative px-3 py-2 font-semibold text-gray-800 hover:text-purple-600 transition">Metrics</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- =========================== DASHBOARD =========================== -->
+  <div id="dashboard" class="page pt-24 max-w-7xl mx-auto px-6">
+    <h1 class="text-3xl font-bold mb-6">Welcome to the Smart Judging & Scoring System</h1>
+    <p class="text-gray-700">Easily manage events, contestants, and scoring in one place.</p>
+  </div>
+
+  <!-- =========================== SCOREBOARD =========================== -->
+  <div id="scoreboard" class="page pt-24 max-w-7xl mx-auto px-6 hidden">
+    <h1 class="text-3xl font-bold mb-6">Scoreboard</h1>
+    <p class="text-gray-700">Scoreboard content goes here.</p>
+  </div>
+
+  <!-- ====================== PROCESS CONTAINER =========================== -->
+<div id="processContainer" class="flex flex-col md:flex-row gap-6 pt-24 max-w-7xl mx-auto px-6">
+
+  <!-- LEFT SIDE: EVENT CARD -->
+  <div id="processForm" class="bg-white rounded-lg shadow p-6 flex-1">
+    <div class="form-container">
+      <h2 id="eventNameDisplay" class="text-xl font-bold mb-4 
+      text-center">Sample Event</h2>
+      <div class="w-full overflow-x-auto">
+        <table id="contestantTable" class="table-auto text-center rounded-lg w-full">
+          <thead id="contestantTableHeader" class="bg-gray-200 font-bold">
+            <tr><th>Contestant No.</th></tr>
+          </thead>
+          <tbody id="tableBody" class="text-black"></tbody>
+        </table>
+      </div>
+      <button id="customizeBtn"
+        class="bg-indigo-600 text-white hover:bg-indigo-700 w-full mt-4 rounded-md py-2 font-semibold transition">
+        Customize Tabulation
+      </button>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDE: IMAGE GALLERY -->
+  <div id="processImageGallery" class="bg-gray-100 rounded-lg shadow p-4 w-full md:w-1/4 hidden grid grid-cols-1 gap-4 max-h-[80vh] overflow-y-auto">
+    <!-- contestant images will be injected here -->
+  </div>
+
+</div>
+
+<!-- =========================== FINALIZATION MODAL =========================== -->
+<div id="finalizationModal" class="hidden fixed inset-0 flex justify-center items-center z-50">
+  <div class="modal-content relative bg-white rounded-xl shadow-lg p-6 w-full max-w-lg overflow-y-auto">
+    
+    <!-- Close Button -->
+    <button id="closeFinalization" class="absolute top-2 right-2 text-gray-500 text-xl hover:text-gray-800">&times;</button>
+
+    <!-- Title -->
+    <h2 class="text-xl font-bold mb-4 text-center text-indigo-600">Finalize Tabulation</h2>
+    <p class="text-gray-700 mb-4 text-center">Please enter the judges' names to finalize the tabulation:</p>
+
+    <!-- Container for dynamic judge name inputs -->
+    <div id="judgeListContainer" class="space-y-3 mb-4"></div>
+
+    <!-- Action Buttons -->
+    <div class="flex justify-center gap-4">
+      <button id="confirmFinalize" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">
+        Yes, Finalize
+      </button>
+      <button id="backFinalize" class="bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-gray-400 transition">
+        Back
+      </button>
+    </div>
+  </div>
+</div>
+
+  <!-- =================== CUSTOMIZE MODAL =========================== -->
+<div id="customizeModal" class="hidden fixed inset-0 flex items-center justify-center z-50">
+  <div class="modal-content relative bg-white rounded-xl shadow-lg p-6 w-full max-w-lg">
+    <button id="closeCustomize" class="absolute top-2 right-2 text-gray-500 text-xl">&times;</button>
+
+    <h2 class="text-xl font-bold mb-4 text-center">Customize Tabulation</h2>
+
+    <!-- Event Name -->
+    <label for="customEventName" class="block font-semibold mb-2">Event Name:</label>
+    <input id="customEventName" type="text" placeholder="Enter event name" class="w-full border rounded-md p-2 mb-1">
+    <p id="eventNameError" class="text-red-600 text-sm hidden mb-2">Please enter event name.</p>
+
+    <!-- Number of Contestants -->
+    <label for="customContestantNumber" class="block font-semibold mb-2">Number of Contestants:</label>
+    <input id="customContestantNumber" type="number" placeholder="Enter number of contestants" class="w-full border rounded-md p-2 mb-1">
+    <p id="contestantNumberError" class="text-red-600 text-sm hidden mb-2">Please enter a valid number of contestants.</p>
+
+    <!-- Number of Judges -->
+    <label for="customJudgeNumber" class="block font-semibold mb-2">Number of Judges:</label>
+    <input id="customJudgeNumber" type="number" placeholder="Enter number of judges" class="w-full border rounded-md p-2 mb-1">
+    <p id="judgeNumberError" class="text-red-600 text-sm hidden mb-2">Please enter a valid number of judges.</p>
+
+    <!-- Insert Photo -->
+    <button id="insertPhotoBtn"
+      class="bg-blue-600 text-white px-4 py-2 rounded-md mb-4 hover:bg-blue-700 transition">
+      Insert Photo
+    </button>
+
+    <!-- Gallery preview inside modal -->
+    <div id="imageGallery" class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4"></div>
+
+    <!-- Action buttons -->
+    <div class="flex justify-end gap-2 mt-6">
+      <button id="cancelCustomize" class="bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-gray-400">Cancel</button>
+      <button id="saveCustomize" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">Save</button>
+    </div>
+  </div>
+</div>
+
+  <!-- =========================== HELP ICON =========================== -->
+  <button id="helpIcon" class="help-icon fixed top-24 right-8 bg-blue-600 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg hover:bg-blue-700 transition z-50" title="Help">?</button>
+
+  <!-- =========================== HELP MODAL =========================== -->
+  <div id="helpModal" class="hidden fixed inset-0 flex justify-center items-center z-50">
+    <div class="modal-content rounded-2xl shadow-2xl p-8 w-full max-w-2xl relative border border-white/40">
+      <button id="closeHelp" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl font-bold">✖</button>
+      <h3 class="text-2xl font-bold text-indigo-600 mb-4 text-center">Judging Criteria</h3>
+      <ul id="criteriaList" class="space-y-4">
+        <li>
+          <p class="criteria-title">Beauty, Style & Stage Presence (Max 40 points)</p>
+          <ul class="criteria-sublist">
+            <li>Covers all aspects of physical appearance, charisma and poise.</li>
+            <li>Facial beauty, confidence and charm. (girls)</li>
+            <li>Physique, fitness and grooming. (boys)</li>
+            <li>Elegance in evening gown & swimsuit.</li>
+            <li>Overall stage presence & impact.</li>
+          </ul>
+        </li>
+        <li>
+          <p class="criteria-title">Intelligence, Communication & Personality (Max 40 points)</p>
+          <ul class="criteria-sublist">
+            <li>Focuses on the contestant’s mind, voice and authenticity.</li>
+            <li>Q&A performance. (clarity, substance, confidence)</li>
+            <li>Public speaking skills and response to the answer.</li>
+            <li>Critical thinking under pressure.</li>
+            <li>Personality, relatability and authenticity.</li>
+          </ul>
+        </li>
+        <li>
+          <p class="criteria-title">Talent, Advocacy & Social Relevance (Max 20 points)</p>
+          <ul class="criteria-sublist">
+            <li>Highlights individuality, creativity and contribution.</li>
+            <li>Talent performance.</li>
+            <li>Advocacy or social cause presentation.</li>
+            <li>Cultural awareness & representation.</li>
+            <li>Passion and dedication to making an impact.</li>
+          </ul>
+        </li>
+      </ul>
+      <div class="flex justify-center mt-6 gap-3">
+        <button id="editCriteriaBtn" class="px-6 py-2 bg-indigo-500 text-white rounded-xl shadow hover:bg-indigo-600 transition">Edit Criteria</button>
+      </div>
+      <button id="addCriteriaBtn" class="px-6 py-2 bg-green-500 text-white rounded-xl shadow hover:bg-green-600 transition"> Add Criteria </button>
+      <div id="criteriaEditForm" class="hidden mt-4"></div>
+      <div id="criteriaActions" class="hidden flex justify-center gap-4 mt-4">
+        <button id="saveCriteriaBtn" class="px-6 py-2 bg-green-500 text-white rounded-xl shadow hover:bg-green-600 transition">Save</button>
+        <button id="cancelCriteriaBtn" class="px-6 py-2 bg-red-500 text-white rounded-xl shadow hover:bg-red-600 transition">Cancel</button>
+      </div>
+      <p id="criteriaSaveMessage" class="text-green-600 text-sm mt-2 opacity-0 text-center"> Criteria saved successfully! </p>
+    </div>
+  </div>
+
+  <!-- =========================== METRICS =========================== -->
+<div id="metrics" class="page pt-24 max-w-7xl mx-auto px-6 hidden">
+  <h1 class="text-3xl font-bold mb-6">Metrics</h1>
+  <p class="text-gray-700">Metrics content goes here.</p>
+</div>
+
+  <!-- =========================== JAVASCRIPT =========================== -->
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+
