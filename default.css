@@ -1,0 +1,56 @@
+    /* Input field styling */
+    .input-field {
+    width: 100%;
+    border: 1px solid #d1d5db; /* gray-300 */
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+    outline: none;
+    transition: all 0.2s;
+    }
+
+    .input-field:focus {
+    box-shadow: 0 0 0 2px #60a5fa; /* blue-400 */
+    }
+
+    /* Modal buttons */
+    .modal-btn {
+    width: 100%;
+    padding: 0.5rem 0;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    }
+
+    .modal-btn:hover {
+    transform: scale(1.02);
+    }
+
+    .modal-btn:active {
+    transform: scale(1);
+    }
+
+   .toast {
+  min-width: 220px;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.4s ease;
+}
+
+.toast-show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast-success {
+  background-color: #16a34a; /* green-600 */
+}
+
+.toast-error {
+  background-color: #dc2626; /* red-600 */
+}
+

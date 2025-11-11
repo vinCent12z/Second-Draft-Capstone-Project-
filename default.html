@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Smart Judging & Scoring System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="default.css">
+</head>
+
+<body class="bg-gradient-to-r from-sky-500 via-indigo-500 to-blue-700 min-h-screen flex flex-col items-center justify-center text-white">
+
+  <!-- Header -->
+  <header class="absolute top-0 left-0 w-full py-4 px-8 bg-blue-600 shadow-md flex justify-between items-center">
+    <h1 class="text-2xl font-bold tracking-wide flex items-center gap-2">
+      🏆 Smart Judging & Scoring System
+    </h1>
+    <div>
+      <button id="loginBtn" type="button" class="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-100 transition">
+        Sign In
+      </button>
+      <button id="signupBtn" type="button" class="bg-yellow-400 text-blue-900 px-4 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition">
+        Sign Up
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="flex flex-col items-center justify-center mt-20 text-center px-6">
+    <h2 class="text-4xl font-bold mb-4">Welcome to the Smart Judging & Scoring System.</h2>
+    <p class="text-lg text-blue-100 mb-8 max-w-xl">
+      Streamline your competitions with accuracy, transparency, and real-time results.
+    </p>
+    <button id="getStarted" type="button" class="bg-white text-blue-700 font-semibold px-6 py-3 rounded-full shadow-lg hover:scale-105 transition">
+      Get Started →
+    </button>
+  </main>
+
+  <!-- LOGIN MODAL -->
+  <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white text-gray-800 rounded-2xl shadow-lg w-96 p-8 relative animate-fadeIn">
+      <h3 class="text-2xl font-bold mb-4 text-center text-blue-600">Login</h3>
+
+      <p id="loginMessage" class="text-sm mb-4 text-red-600 hidden"></p>
+
+      <input id="loginUsername" type="text" placeholder="Username" class="input-field mb-4">
+      <input id="loginPassword" type="password" placeholder="Password" class="input-field mb-6">
+
+      <button id="loginSubmit" type="button" class="modal-btn mb-3 bg-blue-600 text-white hover:bg-blue-700">Sign In</button>
+      <button id="closeLogin" type="button" class="modal-btn bg-gray-200 text-gray-700 hover:bg-gray-300">Cancel</button>
+    </div>
+  </div>
+
+  <!-- SIGNUP MODAL -->
+  <div id="signupModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white text-gray-800 rounded-2xl shadow-lg w-96 p-8 relative animate-fadeIn">
+      <h3 class="text-2xl font-bold mb-4 text-center text-blue-600">Create Account</h3>
+
+      <p id="signupMessage" class="text-sm mb-4 text-red-600 hidden"></p>
+
+      <input id="signupUsername" type="text" placeholder="Username" class="input-field mb-4">
+      <input id="signupPassword" type="password" placeholder="Password" class="input-field mb-6">
+
+      <button id="signupSubmit" type="button" class="modal-btn mb-3 bg-yellow-400 text-blue-900 hover:bg-yellow-300">Create Account</button>
+      <button id="closeSignup" type="button" class="modal-btn bg-gray-200 text-gray-700 hover:bg-gray-300">Cancel</button>
+    </div>
+  </div>
+
+  <!-- Floating Toast Message -->
+  <div id="toastContainer" class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"></div>
+
+  <script src="default.js"></script>
+</body>
+</html>
