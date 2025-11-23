@@ -303,10 +303,37 @@ insertPhotoBtn.addEventListener('click', ()=>{
 });
 
 // =======================
-// FINALIZATION MODAL with smooth error notification & dynamic judge tables
+// HELPER: Clone table with styles
 // =======================
-function openFinalizationModal() { 
-    finalizationModal.classList.remove('hidden'); 
+function cloneTableWithStyle(sourceTable) {
+    const clone = sourceTable.cloneNode(true);
+    clone.id = ''; // remove duplicate ID
+
+    // Copy column widths from source headers
+    const sourceHeaders = sourceTable.querySelectorAll('th');
+    const cloneHeaders = clone.querySelectorAll('th');
+
+    sourceHeaders.forEach((th, idx) => {
+        if (cloneHeaders[idx]) {
+            const computed = getComputedStyle(th);
+            cloneHeaders[idx].style.width = computed.width;
+            cloneHeaders[idx].style.minWidth = computed.minWidth;
+        }
+    });
+
+    // Copy table layout & width
+    const computedTable = getComputedStyle(sourceTable);
+    clone.style.tableLayout = computedTable.tableLayout;
+    clone.style.width = computedTable.width;
+
+    return clone;
+}
+
+// =======================
+// OPEN FINALIZATION MODAL
+// =======================
+function openFinalizationModal() {
+    finalizationModal.classList.remove('hidden');
     setTimeout(() => finalizationModal.classList.add('show'), 10);
 
     const container = document.getElementById('judgeListContainer');
@@ -338,23 +365,40 @@ function openFinalizationModal() {
     }
 }
 
-function closeFinalizationModal() { 
-    finalizationModal.classList.remove('show'); 
-    setTimeout(() => finalizationModal.classList.add('hidden'), 300); 
+// =======================
+// CLOSE FINALIZATION MODAL
+// =======================
+function closeFinalizationModal() {
+    finalizationModal.classList.remove('show');
+    setTimeout(() => finalizationModal.classList.add('hidden'), 300);
 }
 
-backFinalize.addEventListener('click', () => { 
-    closeFinalizationModal(); 
-    customizeModal.classList.remove('hidden'); 
-    setTimeout(() => customizeModal.classList.add('show'), 10); 
+// =======================
+// FINALIZATION MODAL BUTTONS
+// =======================
+
+// X button: close only
+closeFinalization.addEventListener('click', () => {
+    closeFinalizationModal();
 });
 
-closeFinalization.addEventListener('click', closeFinalizationModal);
+// Back button: close Finalization, reopen Customize
+backFinalize.addEventListener('click', () => {
+    closeFinalizationModal();
+    setTimeout(() => {
+        customizeModal.classList.remove('hidden');
+        setTimeout(() => customizeModal.classList.add('show'), 10);
+    }, 350);
+});
 
+// =======================
+// FINALIZE TABULATION
+// =======================
 confirmFinalize.addEventListener('click', () => {
     const judgeInputs = document.querySelectorAll('#judgeListContainer input');
     let allValid = true;
 
+    // Validate judge names
     judgeInputs.forEach(input => {
         const error = input.nextElementSibling;
         if (!input.value.trim()) {
@@ -372,6 +416,7 @@ confirmFinalize.addEventListener('click', () => {
         return;
     }
 
+    // Store judge names
     judgeNames = Array.from(judgeInputs).map(input => input.value.trim());
     window.totalJudges = judgeNames.length;
 
@@ -382,82 +427,179 @@ confirmFinalize.addEventListener('click', () => {
 
     document.getElementById('eventNameDisplay').textContent = eventNameInput.value;
 
-    // Create a separate container for judge tables
-    let judgesContainer = document.getElementById('judgesTablesContainer');
-    if (!judgesContainer) {
-        judgesContainer = document.createElement('div');
-        judgesContainer.id = 'judgesTablesContainer';
-        judgesContainer.className = 'w-full flex flex-col gap-4 mt-4';
-        processForm.appendChild(judgesContainer);
-    }
-    judgesContainer.innerHTML = '';
+    // === Judges tables container ===
+let judgesContainer = document.getElementById('judgesTablesContainer');
+if (!judgesContainer) {
+    judgesContainer = document.createElement('div');
+    judgesContainer.id = 'judgesTablesContainer';
+    judgesContainer.className = 'w-full flex flex-col gap-6 mt-4';
+    processForm.appendChild(judgesContainer);
+}
+judgesContainer.innerHTML = ''; // clear previous
 
-    // Generate separate tables for each judge
-    judgeNames.forEach(judge => {
-        const card = document.createElement('div');
-        card.className = 'bg-white rounded-lg shadow p-4';
+const mainTable = document.getElementById('contestantTable'); // Judge 1 reference
 
-        const title = document.createElement('h3');
-        title.textContent = `Judge: ${judge}`;
-        title.className = 'font-bold mb-2 text-left';
-        card.appendChild(title);
+judgeNames.forEach((judge, index) => {
+    const card = document.createElement("div");
+    card.className = "bg-white rounded-lg shadow p-4 judge-table-container";
+    card.dataset.judge = index + 1;
 
-        const table = document.getElementById('contestantTable').cloneNode(true);
-        table.id = ''; // Remove duplicate ID
-        table.querySelector('tbody').innerHTML = '';
+    // === Event Name  ===
+    const eventHeader = document.createElement("h2");
+    eventHeader.textContent = document.getElementById("customEventName").value;
+    eventHeader.style.fontSize = "1.3rem";
+    eventHeader.style.fontWeight = "700";
+    eventHeader.style.color = "#000";
+    eventHeader.style.marginBottom = "0.5rem";
+    eventHeader.style.textAlign = "center";
+    card.appendChild(eventHeader);
 
-        for (let i = 1; i <= totalContestants; i++) {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td>${i}</td>`;
-            for (let j = 0; j < criteriaCount; j++) {
-                const td = document.createElement('td');
-                td.textContent = '';
-                td.style.minWidth = '80px';
-                td.style.height = '1.4rem';
-                td.style.textAlign = 'center';
-                tr.appendChild(td);
-            }
-            table.querySelector('tbody').appendChild(tr);
+  
+    // === Create identical table for each judge ===
+    const baseTable = document.getElementById('contestantTable');
+    const newTable = baseTable.cloneNode(true); // deep clone (includes styles)
+
+    // Reapply essential table classes for consistent visuals
+    newTable.className = baseTable.className;
+    newTable.style.width = baseTable.style.width;
+    newTable.style.borderCollapse = baseTable.style.borderCollapse;
+    newTable.style.border = baseTable.style.border;
+    newTable.style.textAlign = baseTable.style.textAlign;
+
+    // === Reset tbody rows ===
+    const tbody = newTable.querySelector('tbody');
+    tbody.innerHTML = '';
+
+    for (let i = 1; i <= totalContestants; i++) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${i}</td>`;
+        for (let j = 0; j < criteriaCount; j++) {
+            const td = document.createElement('td');
+            td.textContent = '';
+            td.style.minWidth = '80px';
+            td.style.height = '1.4rem';
+            td.style.textAlign = 'center';
+            tr.appendChild(td);
         }
+        tbody.appendChild(tr);
+    }
 
-        card.appendChild(table);
-        judgesContainer.appendChild(card);
+    card.appendChild(newTable);
+
+  // === APPROVED AND VERIFIED BY footer ===
+const judgeFooter = document.createElement("div");
+judgeFooter.style.marginTop = "10px";
+judgeFooter.style.position = "relative";
+judgeFooter.style.width = "100%";
+
+// Line 1: Judge name
+const judgeNameLine = document.createElement("p");
+judgeNameLine.textContent = `APPROVED AND VERIFIED BY: ${judge}`;
+judgeNameLine.style.fontWeight = "600";
+judgeNameLine.style.color = "#4f46e5"; // indigo
+judgeNameLine.style.margin = "0";
+
+// Line 2: Judge number
+const judgeNumberLine = document.createElement("p");
+judgeNumberLine.textContent = `JUDGE NO. ${index + 1}`;
+judgeNumberLine.style.fontWeight = "600";
+judgeNumberLine.style.color = "#4f46e5"; // indigo
+judgeNumberLine.style.margin = "0";
+
+// Align number right under the "BY:" part of the first line
+// Calculate offset dynamically
+judgeNumberLine.style.paddingLeft = `${"APPROVED AND VERIFIED BY: ".length}ch`;
+
+judgeFooter.appendChild(judgeNameLine);
+judgeFooter.appendChild(judgeNumberLine);
+
+card.appendChild(judgeFooter);
+
+    // === Customize button ===
+    const customizeBtn = document.createElement('button');
+    customizeBtn.className = 'customize-btn mt-2 bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-700';
+    customizeBtn.textContent = 'Customize Tabulation';
+    customizeBtn.addEventListener('click', () => {
+        alert(`Customize tabulation for ${judge}`);
     });
+    card.appendChild(customizeBtn);
 
-    // Save images for display
+    judgesContainer.appendChild(card);
+
+    // HIDE customize buttons in judge tables after finalization
+document.querySelectorAll('.judge-table-container .customize-btn')
+    .forEach(btn => btn.style.display = 'none');
+
+});
+
+    // === Save images ===
     savedImages = {};
     Object.keys(tempImages).forEach(k => {
         const num = parseInt(k);
         if (!isNaN(num) && num >= 1 && num <= totalContestants) savedImages[num] = tempImages[k];
     });
 
-    // Render image gallery
+    // === Render image gallery ===
     processImageGallery.innerHTML = '';
     Object.keys(savedImages)
         .map(k => parseInt(k))
-        .sort((a,b) => a-b)
+        .sort((a, b) => a - b)
         .forEach(num => {
             const src = savedImages[num];
             if (!src) return;
             const card = document.createElement('div');
             card.className = 'contestant-card';
-            const img = document.createElement('img'); img.src = src; img.alt = `Contestant ${num}`;
-            const label = document.createElement('p'); label.className = 'contestant-label'; label.textContent = `Contestant #${num}`;
-            card.appendChild(img); card.appendChild(label);
+            const img = document.createElement('img');
+            img.src = src;
+            img.alt = `Contestant ${num}`;
+            const label = document.createElement('p');
+            label.className = 'contestant-label';
+            label.textContent = `Contestant #${num}`;
+            card.appendChild(img);
+            card.appendChild(label);
             processImageGallery.appendChild(card);
         });
     processImageGallery.style.display = Object.keys(savedImages).length > 0 ? 'grid' : 'none';
 
     processContainer.classList.add('active');
     if (helpIcon) helpIcon.style.display = 'flex';
-    contestantNumberInput.value = ''; 
+    contestantNumberInput.value = '';
     document.getElementById('customJudgeNumber').value = '';
 
-    adjustTableColumnWidths();
-    closeFinalizationModal();
+    // === Update main table ===
+    const mainTableBody = document.getElementById('tableBody');
+    mainTableBody.innerHTML = '';
+    for (let i = 1; i <= totalContestants; i++) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${i}</td>`;
+        for (let j = 0; j < criteriaCount; j++) {
+            const td = document.createElement('td');
+            td.textContent = '';
+            td.style.textAlign = 'center';
+            td.style.height = '1.4rem';
+            tr.appendChild(td);
+        }
+        mainTableBody.appendChild(tr);
+    }
 
+        updateTable();
+    adjustTableColumnWidths();
+
+    // === HIDE MAIN TABLE AFTER FINALIZE ===
+const eventName = document.getElementById('eventNameDisplay');
+const mainTableElement = document.getElementById('contestantTable'); 
+const mainCustomizeBtn = document.getElementById('customizeBtn');
+
+if (eventName) eventName.style.display = 'none';
+if (mainTableElement) mainTableElement.style.display = 'none';
+if (mainCustomizeBtn) mainCustomizeBtn.style.display = 'none';
+
+
+    closeFinalizationModal();
     alert(`✅ Tabulation finalized successfully! Total Judges: ${window.totalJudges}`);
 });
+
+
 
 // =======================
 // INITIAL TABLE
