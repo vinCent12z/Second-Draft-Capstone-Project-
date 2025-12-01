@@ -83,7 +83,7 @@ input:focus, textarea:focus {
   box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.2);
 }
 
-/* =========================== HELP ICON =========================== */
+/* =========================== QUESTION MARK ICON=========================== */
 .help-icon {
   position: absolute;
   background: #3b82f6;
@@ -102,12 +102,6 @@ input:focus, textarea:focus {
   z-index: 50;
 }
 
-/* NEW: move icon when form/gallery active */
-.help-icon.active {
-  left: calc(70% + 2rem); /* adjust based on layout */
-  top: 2rem; /* distance from top */
-  transform: translateX(0); /* reset translate */
-}
 
 @media (max-width: 1024px) {
   .help-icon { left: calc(50% + 270px); top: 30%; }
@@ -510,4 +504,52 @@ input:focus, textarea:focus {
   }
 }
 
+/* ========================= ADD MODAL ========================= */
+#addRoundModal.show {
+  display: flex !important;
+  animation: fadeInUp 0.3s ease forwards;
+}
 
+/* ========================= ADD ROUND BUTTON ========================= */
+#manualAddRoundBtn {
+  position: absolute;
+  top: 5rem;      /* distance from top */
+  right: 7rem;    /* distance from right */
+  z-index: 100;   /* ensure it's above other elements */
+  padding: 0.5rem 1rem;
+  background-color: #4F46E5;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease, transform 0.2s ease;
+  display: none; /* hide initially */
+}
+
+#manualAddRoundBtn:hover {
+  background-color: #4338CA;
+  transform: translateY(-1px);
+}
+
+/* ========================= DEPLOY BUTTON ========================= */
+#deployBtn {
+  position: absolute;
+  top: 5rem;
+  right: 16rem; 
+  z-index: 100;
+  padding: 0.5rem 1rem;
+  background-color: #008000;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease, transform 0.2s ease;
+  display: none; /* hide initially */
+}
+
+#deployBtn:hover {
+  background-color: #008000;
+  transform: translateY(-1px);
+}
