@@ -1034,21 +1034,30 @@ async function uploadImageToCloudinary(fileOrBase64) {
   const url = `https://api.cloudinary.com/v1_1/dfmzlhmwn/image/upload`; // 🔑 replace with your Cloud Name
   const formData = new FormData();
 
+  // Pwede File object o base64 string
   formData.append("file", fileOrBase64);
   formData.append("upload_preset", "contest_upload"); // 🔑 replace with your unsigned preset name
 
-  const response = await fetch(url, { method: "POST", body: formData });
-  if (!response.ok) throw new Error("Cloudinary upload failed");
+  const response = await fetch(url, {
+    method: "POST",
+    body: formData
+  });
+
+  if (!response.ok) {
+    throw new Error("Cloudinary upload failed");
+  }
 
   const data = await response.json();
-  return data.secure_url; // ✅ store only the URL
+  return data.secure_url; // ✅ ito lang ang i-store sa savedImages
 }
 
 // =======================
-// DEPLOY BUTTON (push to Express server with token)
+// DEPLOY BUTTON (Cloudinary URLs only, tables intact)
 // =======================
 deployBtn.addEventListener('click', async () => {
   const updatedRounds = Array.isArray(rounds) ? rounds : [];
+
+  console.log('Deploy clicked. Finalized rounds count:', updatedRounds.length, updatedRounds);
 
   if (updatedRounds.length === 0) {
     alert('ℹ️ No rounds to deploy. Please finalize at least one round first.');
@@ -1060,47 +1069,53 @@ deployBtn.addEventListener('click', async () => {
     const sanitizedImages = {};
     for (const [id, imgData] of Object.entries(round.savedImages || {})) {
       try {
+        // Upload if File object or base64 string
         if (imgData instanceof File || (typeof imgData === "string" && !imgData.startsWith("http"))) {
           const url = await uploadImageToCloudinary(imgData);
           sanitizedImages[id] = url;
         } else {
+          // Already a URL → keep as is
           sanitizedImages[id] = imgData;
         }
       } catch (err) {
         console.error(`❌ Failed to upload image for contestant ${id}:`, err);
       }
     }
+    // ✅ Replace round images with Cloudinary URLs only
     round.savedImages = sanitizedImages;
   }
 
+  // Prepare JSON payload
+  const newRoundsJSON = JSON.stringify(updatedRounds);
+
+  // Snapshot of the process page (tables, layout, etc.)
   const processContainerEl = document.getElementById('processContainer');
   const snapshotHTMLRaw = processContainerEl?.innerHTML?.trim() || '';
 
   try {
-    // ✅ Push deployment to your Express server
-    const response = await fetch('https://your-server-url.onrender.com/deploy', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer supersecret123' // 🔑 match ADMIN_TOKEN in your server
-      },
-      body: JSON.stringify({
-        processHTML: snapshotHTMLRaw,
-        roundsData: updatedRounds
-      })
-    });
+    // ✅ Store only lightweight data (tables + Cloudinary URLs)
+    localStorage.setItem('roundsData', newRoundsJSON);
 
-    if (!response.ok) throw new Error('Server deploy failed');
-    const result = await response.json();
+    if (snapshotHTMLRaw && snapshotHTMLRaw.length > 0) {
+      localStorage.setItem('processHTML', snapshotHTMLRaw);
+    } else {
+      localStorage.removeItem('processHTML');
+    }
+
+    localStorage.setItem('lastDeployTime', Date.now().toString());
+    localStorage.setItem('adminRunning', 'true');
 
     const totalContestants = updatedRounds.reduce((sum, round) => {
       return sum + (round.totalContestants || Object.keys(round.savedImages || {}).length);
     }, 0);
 
-    alert(`🚀 Deployment complete! ${updatedRounds.length} round(s) deployed with ${totalContestants} contestant(s). Judges can now view all entries via the server.`);
-    console.log('✅ Server response:', result);
+    alert(`🚀 Deployment complete! ${updatedRounds.length} round(s) deployed with ${totalContestants} contestant(s). Judges can now view all entries in judge.html`);
   } catch (e) {
-    alert('❌ Deployment failed due to unexpected error.');
+    if (e.name === 'QuotaExceededError') {
+      alert('❌ Deployment failed: localStorage quota exceeded. Please switch fully to server API.');
+    } else {
+      alert('❌ Deployment failed due to unexpected error.');
+    }
     console.error(e);
   }
 });
