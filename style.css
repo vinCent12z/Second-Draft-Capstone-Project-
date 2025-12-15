@@ -126,7 +126,7 @@ input:focus, textarea:focus {
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   background: rgba(0, 0, 0, 0.3);
-  z-index: 100;
+  z-index: 9000;
   overflow: hidden;
 }
 #helpModal.show, #customizeModal.show {
@@ -238,7 +238,9 @@ input:focus, textarea:focus {
 /* ================= CUSTOMIZE MODAL FORM IMPROVEMENT ================== */
 #customizeModal .modal-content {
   padding: 2rem 2.5rem;
+  z-index: 9999; 
 }
+
 #customizeModal label {
   display: block;
   font-weight: 600;
@@ -367,25 +369,22 @@ input:focus, textarea:focus {
   margin: 2rem auto;
 }
 
-
-
 #processImageGallery {
-  display: grid;          
   flex: 0 0 45%;
   background: #f9fafb;
   border-radius: 0.75rem;
   padding: 1rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); /* ✅ updated */
-  gap: 1rem;
-  justify-items: center;
-  align-items: start;
+
+  /* ✅ Palitan ito */
+  display: flex;
+  flex-direction: column;   /* stacked vertically */
+  gap: 2rem;                /* spacing between rounds */
+
   max-height: 80vh;
   overflow-y: auto;
   margin-top: 3rem;
 }
-
 
 /* INDIVIDUAL CONTESTANT CARD */
 #processImageGallery .contestant-card {
@@ -420,6 +419,37 @@ input:focus, textarea:focus {
   text-align: center;
 }
 
+/* ====================== DISPLAYING THE RESULTS TABLES ON SECOND ROUND ====================== */
+/* JUDGE CARD SCROLLING */
+.judge-table-container {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+}
+.judge-table-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  width: 100%;
+  max-width: 100%;
+  padding-bottom: 8px;
+}
+.judge-table-container table {
+  display: block;
+  table-layout: fixed;
+  min-width: 720px;
+}
+.judge-table-container th,
+.judge-table-container td {
+  min-width: 120px;
+  text-align: center;
+  border: 1px solid #000;
+  padding: 0.35rem;
+  font-weight: 600;
+}
+.judge-footer p { margin: 0; }
+
+
 /* RESPONSIVE UPDATES */
 @media (max-width: 1024px) {
   #processContainer.active {
@@ -429,14 +459,12 @@ input:focus, textarea:focus {
   #processImageGallery {
     flex: 0 0 auto;
     width: 100%;
-    grid-template-columns: repeat(2, 1fr);
     margin-top: 2rem;
   }
 }
 
 @media (min-width: 1025px) {
   #processImageGallery {
-    grid-template-columns: repeat(3, 1fr);
     margin-top: 3rem;
   }
 }
@@ -552,4 +580,64 @@ input:focus, textarea:focus {
 #deployBtn:hover {
   background-color: #008000;
   transform: translateY(-1px);
+}
+
+/* ========================= NO BUTTON FOR GLITCH ========================= */
+#deployBtn {
+#addRoundModal {
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+#addRoundModal.show {
+  display: flex !important;
+  animation: fadeInUp 0.3s ease forwards;
+}}
+
+
+/* =========================  Blue wrapper style for each round gallery section ========================= */
+.round-gallery-section {
+  border: 2px solid #4f46e5;   /* Indigo blue border */
+  border-radius: 0.75rem;
+  background-color: #eef2ff;   /* light indigo background */
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.round-gallery-section h3 {
+  color: #4f46e5;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.judge-table-container {
+  position: relative; /* kailangan para gumana ang absolute positioning ng icon */
+}
+.judge-table-container .help-icon {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 10;
+}
+
+
+/* =========================  OVERLAY PARA SA ADD ROUND BUTTON ========================= */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* Safari/iOS support first */
+  -webkit-backdrop-filter: blur(5px);
+  /* Standard property after */
+  backdrop-filter: blur(5px);
+
+  background-color: rgba(0,0,0,0.2); /* semi-transparent dark layer */
+  z-index: 999;
+}
+
+#addRoundModal {
+  position: fixed;
+  z-index: 1000; /* keep modal above overlay */
 }
