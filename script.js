@@ -39,6 +39,23 @@ const addRoundYes = document.getElementById('addRoundYes');
 const addRoundNo = document.getElementById('addRoundNo');
 const addRoundModal = document.getElementById('addRoundModal');
 
+// Admin dropdown elements
+const adminUserIconContainer = document.getElementById('adminUserIconContainer');
+const adminDropdown = document.getElementById('adminDropdown');
+const logoutBtn = document.getElementById('logoutBtn');
+const logoutModal = document.getElementById('logoutModal');
+const confirmLogout = document.getElementById('confirmLogout');
+const cancelLogout = document.getElementById('cancelLogout');
+
+// Admin Restrictions
+const currentUser = localStorage.getItem("currentUser");
+const currentRole = localStorage.getItem("currentRole");
+
+if (!currentUser || currentRole !== "admin") {
+  alert("Unauthorized access. Please login as admin.");
+  window.location.href = "default.html";
+}
+
 // Remove button for criteria (dynamic)
 const removeCriteriaBtn = document.createElement("button");
 removeCriteriaBtn.id = "removeCriteriaBtn";
@@ -76,11 +93,11 @@ let isEditingCriteria = false;
 let disableMainHelpModal = false;
 
 
+
 // =======================
 // SPA NAVIGATION
 // =======================
 function showPage(targetId) {
-  // Hide all pages by default
   pages.forEach(p => p.classList.add('hidden'));
   processForm.style.display = 'none';
   helpIcon.style.display = 'none';
@@ -91,19 +108,11 @@ function showPage(targetId) {
 
   if (targetId === 'processContainer') {
     processForm.style.display = 'block';
-
-    // ✅ Only show help icon if main help modal is not locked
-    if (!disableMainHelpModal) {
-      helpIcon.style.display = 'flex';
-    }
-
-    // Reveal gallery if rounds exist
+    if (!disableMainHelpModal) helpIcon.style.display = 'flex';
     if (Object.keys(savedImages).length > 0 || rounds.length > 0) {
       processImageGallery.style.display = 'flex';
       processImageGallery.style.flexDirection = 'column';
     }
-
-    // Show Add Round / Deploy buttons only if first round finalized
     if (isFirstRoundFinalized) {
       manualAddRoundBtn.style.display = 'inline-block';
       deployBtn.style.display = 'inline-block';
@@ -117,7 +126,6 @@ function showPage(targetId) {
   }
 }
 
-// Navigation handlers
 navLinks.forEach(link => {
   link.addEventListener('click', e => {
     e.preventDefault();
@@ -125,7 +133,6 @@ navLinks.forEach(link => {
   });
 });
 processBtn.addEventListener('click', () => showPage('processContainer'));
-
 
 // =======================
 // TABLE MANAGEMENT
@@ -194,6 +201,7 @@ function setupTextareaResize(textarea) {
   textarea.addEventListener('input',resize);
   resize();
 }
+
 
 // =======================
 // EDIT CRITERIA MODAL
@@ -910,6 +918,58 @@ if (helpIcon) helpIcon.style.display = 'none';
 });
 
 // =======================
+// ADMIN DROPDOWN & LOGOUT (SYNCED FROM LOGIN)
+// =======================
+
+function updateAdminDropdown() {
+  const username = localStorage.getItem("currentUser");
+  const role = localStorage.getItem("currentRole");
+
+  const usernameEl = document.getElementById("dropdownAdminUsername");
+  const roleEl = document.getElementById("dropdownAdminRole");
+
+  if (usernameEl) {
+    usernameEl.textContent = username ? username : "Unknown";
+  }
+
+  if (roleEl) {
+    roleEl.textContent = role ? role.toUpperCase() : "UNKNOWN";
+  }
+}
+
+updateAdminDropdown();
+
+// Toggle dropdown
+adminUserIconContainer.addEventListener('click', (e) => {
+  e.stopPropagation();
+  adminDropdown.classList.toggle('hidden');
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', () => {
+  adminDropdown.classList.add('hidden');
+});
+
+// Logout
+logoutBtn.addEventListener('click', () => {
+  adminDropdown.classList.add('hidden');
+  logoutModal.classList.remove('hidden');
+});
+
+confirmLogout.addEventListener('click', () => {
+  localStorage.removeItem("currentUser");
+  localStorage.removeItem("currentRole");
+
+  logoutModal.classList.add('hidden');
+  alert('Logged out successfully!');
+  window.location.href = "default.html";
+});
+
+cancelLogout.addEventListener('click', () => {
+  logoutModal.classList.add('hidden');
+});
+
+// =======================
 // OVERLAY HELPERS
 // =======================
 function showOverlay() {
@@ -1031,91 +1091,97 @@ adjustTableColumnWidths();
 // Helper: Upload image to Cloudinary
 // =======================
 async function uploadImageToCloudinary(fileOrBase64) {
-  const url = `https://api.cloudinary.com/v1_1/dfmzlhmwn/image/upload`; // 🔑 replace with your Cloud Name
+  const url = `https://api.cloudinary.com/v1_1/dfmzlhmwn/image/upload`;
   const formData = new FormData();
 
-  // Pwede File object o base64 string
   formData.append("file", fileOrBase64);
-  formData.append("upload_preset", "contest_upload"); // 🔑 replace with your unsigned preset name
+  formData.append("upload_preset", "contest_upload");
 
   const response = await fetch(url, {
     method: "POST",
     body: formData
   });
 
-  if (!response.ok) {
-    throw new Error("Cloudinary upload failed");
-  }
+  if (!response.ok) throw new Error("Cloudinary upload failed");
 
   const data = await response.json();
-  return data.secure_url; // ✅ ito lang ang i-store sa savedImages
+  return data.secure_url; // store only the Cloudinary URL
 }
 
 // =======================
 // DEPLOY BUTTON (Cloudinary URLs only, tables intact)
 // =======================
-deployBtn.addEventListener('click', async () => {
-  const updatedRounds = Array.isArray(rounds) ? rounds : [];
+document.addEventListener('DOMContentLoaded', () => {
+  const deployBtn = document.getElementById('deployBtn');
+  if (!deployBtn) return;
 
-  console.log('Deploy clicked. Finalized rounds count:', updatedRounds.length, updatedRounds);
+  deployBtn.addEventListener('click', async () => {
+    const updatedRounds = Array.isArray(rounds) ? rounds : [];
+    if (updatedRounds.length === 0) {
+      alert('ℹ️ No rounds to deploy. Please finalize at least one round first.');
+      return;
+    }
 
-  if (updatedRounds.length === 0) {
-    alert('ℹ️ No rounds to deploy. Please finalize at least one round first.');
-    return;
-  }
+    try {
+      // 1️⃣ Upload images and sanitize
+      for (const round of updatedRounds) {
+        const sanitizedImages = {};
+        const savedImages = round.savedImages || {};
 
-  // 🔑 Upload images to Cloudinary and replace with URLs
-  for (const round of updatedRounds) {
-    const sanitizedImages = {};
-    for (const [id, imgData] of Object.entries(round.savedImages || {})) {
-      try {
-        // Upload if File object or base64 string
-        if (imgData instanceof File || (typeof imgData === "string" && !imgData.startsWith("http"))) {
-          const url = await uploadImageToCloudinary(imgData);
-          sanitizedImages[id] = url;
-        } else {
-          // Already a URL → keep as is
-          sanitizedImages[id] = imgData;
+        for (const [contestantId, imgData] of Object.entries(savedImages)) {
+          try {
+            if (imgData instanceof File || (typeof imgData === "string" && !imgData.startsWith("http"))) {
+              const url = await uploadImageToCloudinary(imgData);
+              sanitizedImages[contestantId] = url;
+            } else {
+              sanitizedImages[contestantId] = imgData;
+            }
+          } catch (err) {
+            console.error(`❌ Failed to upload image for contestant ${contestantId}:`, err);
+          }
         }
-      } catch (err) {
-        console.error(`❌ Failed to upload image for contestant ${id}:`, err);
+
+        round.savedImages = sanitizedImages;
       }
+
+      // 2️⃣ Update table <img> tags with Cloudinary URLs
+      const processContainerEl = document.getElementById('processContainer');
+      if (processContainerEl) {
+        const tableImgs = processContainerEl.querySelectorAll('img');
+        tableImgs.forEach(imgEl => {
+          const contestantId = imgEl.dataset.contestantId; // make sure each <img> has data-contestant-id
+          if (contestantId && updatedRounds.length) {
+            for (const round of updatedRounds) {
+              if (round.savedImages && round.savedImages[contestantId]) {
+                imgEl.src = round.savedImages[contestantId];
+              }
+            }
+          }
+        });
+      }
+
+      // 3️⃣ Save sanitized HTML + JSON
+      localStorage.setItem('roundsData', JSON.stringify(updatedRounds));
+      if (processContainerEl) {
+        localStorage.setItem('processHTML', processContainerEl.innerHTML.trim());
+      }
+
+      localStorage.setItem('lastDeployTime', Date.now().toString());
+      localStorage.setItem('adminRunning', 'true');
+
+      const totalContestants = updatedRounds.reduce((sum, round) => {
+        return sum + (round.totalContestants || Object.keys(round.savedImages || {}).length);
+      }, 0);
+
+      alert(`🚀 Deployment complete! ${updatedRounds.length} round(s) deployed with ${totalContestants} contestant(s). Judges can now view all entries in judge.html`);
+
+    } catch (e) {
+      if (e.name === 'QuotaExceededError') {
+        alert('❌ Deployment failed: localStorage quota exceeded. Consider using a server API.');
+      } else {
+        alert('❌ Deployment failed due to unexpected error.');
+      }
+      console.error(e);
     }
-    // ✅ Replace round images with Cloudinary URLs only
-    round.savedImages = sanitizedImages;
-  }
-
-  // Prepare JSON payload
-  const newRoundsJSON = JSON.stringify(updatedRounds);
-
-  // Snapshot of the process page (tables, layout, etc.)
-  const processContainerEl = document.getElementById('processContainer');
-  const snapshotHTMLRaw = processContainerEl?.innerHTML?.trim() || '';
-
-  try {
-    // ✅ Store only lightweight data (tables + Cloudinary URLs)
-    localStorage.setItem('roundsData', newRoundsJSON);
-
-    if (snapshotHTMLRaw && snapshotHTMLRaw.length > 0) {
-      localStorage.setItem('processHTML', snapshotHTMLRaw);
-    } else {
-      localStorage.removeItem('processHTML');
-    }
-
-    localStorage.setItem('lastDeployTime', Date.now().toString());
-    localStorage.setItem('adminRunning', 'true');
-
-    const totalContestants = updatedRounds.reduce((sum, round) => {
-      return sum + (round.totalContestants || Object.keys(round.savedImages || {}).length);
-    }, 0);
-
-    alert(`🚀 Deployment complete! ${updatedRounds.length} round(s) deployed with ${totalContestants} contestant(s). Judges can now view all entries in judge.html`);
-  } catch (e) {
-    if (e.name === 'QuotaExceededError') {
-      alert('❌ Deployment failed: localStorage quota exceeded. Please switch fully to server API.');
-    } else {
-      alert('❌ Deployment failed due to unexpected error.');
-    }
-    console.error(e);
-  }
+  });
 });
