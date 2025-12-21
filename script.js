@@ -50,7 +50,6 @@ const cancelLogout = document.getElementById('cancelLogout');
 // Admin Restrictions
 const currentUser = localStorage.getItem("currentUser");
 const currentRole = localStorage.getItem("currentRole");
-
 if (!currentUser || currentRole !== "admin") {
   alert("Unauthorized access. Please login as admin.");
   window.location.href = "default.html";
@@ -74,9 +73,32 @@ addCriteriaBtn.style.display = 'none';
 if (processImageGallery) processImageGallery.style.display = 'none';
 processContainer.classList.remove('active');
 
-let tempImages = {};
-let savedImages = {};
-let rounds = [];
+let tempImages = {};   // ⚡ Only current round ephemeral images
+let savedImages = {};  // ⚡ Current round finalized images
+let rounds = [];       // 🏆 Array of finalized rounds
+
+let lastContestantCount = null;
+
+// =======================
+// RESET INSERTED PHOTOS WHEN CONTESTANT NUMBER CHANGES
+// =======================
+contestantNumberInput.addEventListener('change', () => {
+  const newCount = parseInt(contestantNumberInput.value, 10);
+  if (!newCount || newCount <= 0 || newCount === lastContestantCount) return;
+
+  // ⚡ Reset only current round ephemeral images
+  tempImages = {};
+
+  // Clear only the current round gallery section (if exists)
+  const currentRoundGallery = document.querySelector(`.round-gallery-section[data-round='${currentRound.roundNumber}']`);
+  if (currentRoundGallery) {
+    currentRoundGallery.remove();
+  }
+
+  lastContestantCount = newCount;
+  console.log(`Contestant number changed to ${newCount}. Current round images reset.`);
+});
+
 window.totalJudges = 0;
 let judgeNames = [];
 let currentRound = {
@@ -91,7 +113,6 @@ let isFirstRoundFinalized = false;
 let allowEditVisible = false;
 let isEditingCriteria = false;
 let disableMainHelpModal = false;
-
 
 
 // =======================
@@ -109,7 +130,7 @@ function showPage(targetId) {
   if (targetId === 'processContainer') {
     processForm.style.display = 'block';
     if (!disableMainHelpModal) helpIcon.style.display = 'flex';
-    if (Object.keys(savedImages).length > 0 || rounds.length > 0) {
+    if ((Object.keys(savedImages).length > 0) || rounds.length > 0) {
       processImageGallery.style.display = 'flex';
       processImageGallery.style.flexDirection = 'column';
     }
@@ -133,6 +154,7 @@ navLinks.forEach(link => {
   });
 });
 processBtn.addEventListener('click', () => showPage('processContainer'));
+
 
 // =======================
 // TABLE MANAGEMENT
@@ -397,27 +419,32 @@ saveCustomize.addEventListener('click', ()=>{
 });
 
 // =======================
-// INSERT PHOTO LOGIC
+// INSERT PHOTO LOGIC (NO DUPLICATES PER ROUND)
 // =======================
-insertPhotoBtn.addEventListener('click', ()=>{
+insertPhotoBtn.addEventListener('click', () => {
   const totalContestants = parseInt(document.getElementById('customContestantNumber').value);
-  if(isNaN(totalContestants) || totalContestants <= 0){
+
+  if (isNaN(totalContestants) || totalContestants <= 0) {
     alert("Enter number of contestants first.");
     return;
   }
 
   let nextNum = 1;
-  while(nextNum <= totalContestants && tempImages[nextNum]) nextNum++;
-  if(nextNum > totalContestants){
+  while (nextNum <= totalContestants && tempImages[nextNum]) nextNum++;
+
+  if (nextNum > totalContestants) {
     alert("All contestants already have images.");
     return;
   }
 
-  const targetStr = prompt(`Assign image to contestant number (1-${totalContestants}):`, nextNum);
-  if(targetStr === null) return;
+  const targetStr = prompt(
+    `Assign image to contestant number (1-${totalContestants}):`,
+    nextNum
+  );
+  if (targetStr === null) return;
 
   const targetNum = parseInt(targetStr);
-  if(isNaN(targetNum) || targetNum < 1 || targetNum > totalContestants){
+  if (isNaN(targetNum) || targetNum < 1 || targetNum > totalContestants) {
     alert(`Invalid number.`);
     return;
   }
@@ -427,14 +454,26 @@ insertPhotoBtn.addEventListener('click', ()=>{
   fileInput.accept = 'image/*';
   fileInput.click();
 
-  fileInput.addEventListener('change', e=>{
+  fileInput.addEventListener('change', e => {
     const file = e.target.files[0];
-    if(!file) return;
+    if (!file) return;
+
     const reader = new FileReader();
-    reader.onload = e => {
-      tempImages[targetNum] = e.target.result;
-      alert(`Photo assigned to Contestant #${targetNum}. Click 'Save' to confirm.`);
+    reader.onload = ev => {
+      const imageData = ev.target.result;
+
+      // 🔒 DUPLICATE CHECK — CURRENT ROUND ONLY
+      const alreadyUsed = Object.values(tempImages).includes(imageData);
+if (alreadyUsed) {
+  alert("❌ This photo is already used in the current round. Please choose a different image.");
+  return;
+}
+
+
+      tempImages[targetNum] = imageData;
+      alert(`✅ Photo assigned to Contestant #${targetNum}. Click 'Save' to confirm.`);
     };
+
     reader.readAsDataURL(file);
   });
 });
@@ -1087,29 +1126,9 @@ addRoundNo.addEventListener('click', () => {
 updateTable();
 adjustTableColumnWidths();
 
-// =======================
-// Helper: Upload image to Cloudinary
-// =======================
-async function uploadImageToCloudinary(fileOrBase64) {
-  const url = `https://api.cloudinary.com/v1_1/dfmzlhmwn/image/upload`;
-  const formData = new FormData();
-
-  formData.append("file", fileOrBase64);
-  formData.append("upload_preset", "contest_upload");
-
-  const response = await fetch(url, {
-    method: "POST",
-    body: formData
-  });
-
-  if (!response.ok) throw new Error("Cloudinary upload failed");
-
-  const data = await response.json();
-  return data.secure_url; // store only the Cloudinary URL
-}
 
 // =======================
-// DEPLOY BUTTON (Cloudinary URLs only, tables intact)
+// DEPLOY BUTTON (Cloudinary URLs only, tables intact, no round labels)
 // =======================
 document.addEventListener('DOMContentLoaded', () => {
   const deployBtn = document.getElementById('deployBtn');
@@ -1149,7 +1168,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (processContainerEl) {
         const tableImgs = processContainerEl.querySelectorAll('img');
         tableImgs.forEach(imgEl => {
-          const contestantId = imgEl.dataset.contestantId; // make sure each <img> has data-contestant-id
+          const contestantId = imgEl.dataset.contestantId;
           if (contestantId && updatedRounds.length) {
             for (const round of updatedRounds) {
               if (round.savedImages && round.savedImages[contestantId]) {
@@ -1158,14 +1177,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
         });
+
+        // 🔹 Clone and clean HTML before saving
+        const cloned = processContainerEl.cloneNode(true);
+
+
+        const cleanedHTML = cloned.innerHTML.trim();
+        localStorage.setItem('processHTML', cleanedHTML);
       }
 
-      // 3️⃣ Save sanitized HTML + JSON
+      // 3️⃣ Save rounds JSON
       localStorage.setItem('roundsData', JSON.stringify(updatedRounds));
-      if (processContainerEl) {
-        localStorage.setItem('processHTML', processContainerEl.innerHTML.trim());
-      }
-
       localStorage.setItem('lastDeployTime', Date.now().toString());
       localStorage.setItem('adminRunning', 'true');
 
