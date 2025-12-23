@@ -287,43 +287,51 @@ if (editBtn) {
   cancelBtn.onclick = closeEditCriteria;
 
   function saveCriteria(){
-    const pairs = criteriaEditForm.querySelectorAll(".criteria-pair");
-    criteriaList.innerHTML='';
-    pairs.forEach(pair=>{
-      const title = pair.querySelector("textarea[data-type='title']").value.trim() || "New Criteria";
-      const subText = pair.querySelector("textarea[data-type='sublist']").value;
-      const p = document.createElement("p");
-      p.classList.add("criteria-title");
-      p.textContent = title;
-      const ul = document.createElement("ul");
-      ul.classList.add("criteria-sublist");
-      subText.split(/\n/).forEach(line=>{
-        if(line.trim()!==""){
-          const li = document.createElement("li");
-          li.textContent = line.trim();
-          ul.appendChild(li);
-        }
-      });
-      criteriaList.appendChild(p);
-      criteriaList.appendChild(ul);
+  const pairs = criteriaEditForm.querySelectorAll(".criteria-pair");
+  criteriaList.innerHTML = '';
+
+  pairs.forEach(pair=>{
+    const title = pair.querySelector("textarea[data-type='title']").value.trim() || "New Criteria";
+    const subText = pair.querySelector("textarea[data-type='sublist']").value;
+
+    // Create wrapper block so we can later parse items easily
+    const block = document.createElement("div");
+    block.className = "criteria-block";
+
+    const p = document.createElement("p");
+    p.classList.add("criteria-title");
+    p.textContent = title;
+
+    const ul = document.createElement("ul");
+    ul.classList.add("criteria-sublist");
+    subText.split(/\n/).forEach(line=>{
+      if(line.trim()!==""){
+        const li = document.createElement("li");
+        li.textContent = line.trim();
+        ul.appendChild(li);
+      }
     });
 
-    updateTable();
-    closeEditCriteria();
+    block.appendChild(p);
+    block.appendChild(ul);
+    criteriaList.appendChild(block);
+  });
 
-    // Behavior depends on round number
-    if (currentRound.roundNumber > 1) {
-      // Hide criteria modal and show customize modal
-      helpModal.classList.remove('show');
-      helpModal.classList.add('hidden');
+  updateTable();
+  closeEditCriteria();
 
-      customizeModal.classList.remove('hidden');
-      setTimeout(() => customizeModal.classList.add('show'), 10);
-    } else {
-      saveMessage.classList.remove("opacity-0");
-      setTimeout(() => saveMessage.classList.add("opacity-0"), 2000);
-    }
+  if (currentRound.roundNumber > 1) {
+    helpModal.classList.remove('show');
+    helpModal.classList.add('hidden');
+
+    customizeModal.classList.remove('hidden');
+    setTimeout(() => customizeModal.classList.add('show'), 10);
+  } else {
+    saveMessage.classList.remove("opacity-0");
+    setTimeout(() => saveMessage.classList.add("opacity-0"), 2000);
   }
+}
+
 
   function closeEditCriteria(){
     isEditingCriteria = false;
@@ -933,14 +941,30 @@ confirmFinalize.addEventListener('click', () => {
   if (eventNameDisplay) eventNameDisplay.style.display = 'none';
   if (editBtn) editBtn.style.display = 'none';
 
-  // Save round record
-  rounds.push({
-    roundNumber: currentRound.roundNumber,
-    judges: judgeNames,
-    criteriaCount,
-    totalContestants,
-    savedImages: { ...roundImages }
-  });
+  // Save round record with full criteria breakdown
+rounds.push({
+  roundNumber: currentRound.roundNumber,
+  judges: judgeNames,
+  criteriaCount,
+  totalContestants,
+  savedImages: { ...roundImages },
+  
+  criteria: Array.from(criteriaList.querySelectorAll('.criteria-title')).map(titleEl => {
+  const block = titleEl.closest('.criteria-block') || titleEl.parentElement;
+  const items = Array.from(block.querySelectorAll('li')).map(li =>
+    li.textContent.trim()
+  );
+
+  return {
+    name: titleEl.textContent.trim(),
+    maxPoints: '',
+    items
+  };
+})
+
+});
+
+
 
   closeFinalizationModal();
 alert(`✅ Tabulation finalized successfully! Total Judges: ${window.totalJudges}`);
@@ -1128,7 +1152,7 @@ adjustTableColumnWidths();
 
 
 // =======================
-// DEPLOY BUTTON (Cloudinary URLs only, tables intact, no round labels)
+// DEPLOY BUTTON (FULLY SYNCED CRITERIA + SUBLIST)
 // =======================
 document.addEventListener('DOMContentLoaded', () => {
   const deployBtn = document.getElementById('deployBtn');
@@ -1142,68 +1166,102 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
-      // 1️⃣ Upload images and sanitize
+      // =========================
+      // 1️⃣ FIX + SANITIZE ROUNDS
+      // =========================
       for (const round of updatedRounds) {
+
+        /* 🔴 MAIN FIX:
+           Always rebuild criteria from DOM
+           (works even on FIRST DEPLOY / Round 1)
+        */
+        const titles = Array.from(
+          document.querySelectorAll('#criteriaList .criteria-title')
+        );
+
+        round.criteria = titles.map(titleEl => {
+          const block =
+            titleEl.closest('.criteria-block') ||
+            titleEl.parentElement;
+
+          const items = Array.from(block.querySelectorAll('li'))
+            .map(li => li.textContent.trim());
+
+          return {
+            name: titleEl.textContent.trim(),
+            maxPoints: '',
+            items
+          };
+        });
+
+        // =========================
+        // IMAGE SANITIZATION
+        // =========================
         const sanitizedImages = {};
         const savedImages = round.savedImages || {};
 
         for (const [contestantId, imgData] of Object.entries(savedImages)) {
           try {
-            if (imgData instanceof File || (typeof imgData === "string" && !imgData.startsWith("http"))) {
+            if (
+              imgData instanceof File ||
+              (typeof imgData === 'string' && !imgData.startsWith('http'))
+            ) {
               const url = await uploadImageToCloudinary(imgData);
               sanitizedImages[contestantId] = url;
             } else {
               sanitizedImages[contestantId] = imgData;
             }
           } catch (err) {
-            console.error(`❌ Failed to upload image for contestant ${contestantId}:`, err);
+            console.error(`❌ Image upload failed for contestant ${contestantId}`, err);
           }
         }
 
         round.savedImages = sanitizedImages;
       }
 
-      // 2️⃣ Update table <img> tags with Cloudinary URLs
+      // =========================
+      // 2️⃣ CLONE PROCESS HTML
+      // =========================
       const processContainerEl = document.getElementById('processContainer');
       if (processContainerEl) {
-        const tableImgs = processContainerEl.querySelectorAll('img');
-        tableImgs.forEach(imgEl => {
-          const contestantId = imgEl.dataset.contestantId;
-          if (contestantId && updatedRounds.length) {
-            for (const round of updatedRounds) {
-              if (round.savedImages && round.savedImages[contestantId]) {
-                imgEl.src = round.savedImages[contestantId];
-              }
-            }
+        const cloned = processContainerEl.cloneNode(true);
+
+        // Ensure help icons are mapped correctly
+        const helpIcons = cloned.querySelectorAll('.help-icon');
+        helpIcons.forEach((icon, idx) => {
+          if (!icon.dataset.round) {
+            icon.dataset.round =
+              String(updatedRounds[idx]?.roundNumber || 1);
+          }
+          if (!icon.dataset.judge) {
+            icon.dataset.judge = String(idx + 1);
           }
         });
 
-        // 🔹 Clone and clean HTML before saving
-        const cloned = processContainerEl.cloneNode(true);
-
-
-        const cleanedHTML = cloned.innerHTML.trim();
-        localStorage.setItem('processHTML', cleanedHTML);
+        localStorage.setItem(
+          'processHTML',
+          cloned.innerHTML.trim()
+        );
       }
 
-      // 3️⃣ Save rounds JSON
+      // =========================
+      // 3️⃣ SAVE DEPLOY DATA
+      // =========================
       localStorage.setItem('roundsData', JSON.stringify(updatedRounds));
       localStorage.setItem('lastDeployTime', Date.now().toString());
       localStorage.setItem('adminRunning', 'true');
 
-      const totalContestants = updatedRounds.reduce((sum, round) => {
-        return sum + (round.totalContestants || Object.keys(round.savedImages || {}).length);
+      const totalContestants = updatedRounds.reduce((sum, r) => {
+        return sum + (r.totalContestants || Object.keys(r.savedImages || {}).length);
       }, 0);
 
-      alert(`🚀 Deployment complete! ${updatedRounds.length} round(s) deployed with ${totalContestants} contestant(s). Judges can now view all entries in judge.html`);
+      alert(
+  `🚀 Deployment complete! ${updatedRounds.length} round(s) deployed with ${totalContestants} contestant(s). Judges can now view all entries in judge.html`
+);
 
-    } catch (e) {
-      if (e.name === 'QuotaExceededError') {
-        alert('❌ Deployment failed: localStorage quota exceeded. Consider using a server API.');
-      } else {
-        alert('❌ Deployment failed due to unexpected error.');
-      }
-      console.error(e);
+    } catch (err) {
+      console.error(err);
+      alert('❌ Deployment failed due to unexpected error.');
     }
   });
 });
