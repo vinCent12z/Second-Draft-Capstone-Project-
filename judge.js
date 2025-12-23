@@ -1,149 +1,65 @@
-// =======================
-// DEPLOYING THE CONTENTS INTO JUDGE SIDE
-// =======================
-document.addEventListener('DOMContentLoaded', () => {
-  const judgeContainer = document.getElementById('judgeContainer');
-  if (!judgeContainer) {
-    console.error('❌ judgeContainer element not found in DOM');
-    return;
-  }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Judge Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="judge.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800">
 
-  // Clear old data on reload
-  localStorage.removeItem('roundsData');
-  localStorage.removeItem('processHTML');
-  localStorage.removeItem('lastDeployTime');
-  localStorage.setItem('adminRunning', 'false');
+  <!-- Header / Navigation -->
+  <header>
+    <nav class="bg-gradient-to-r from-indigo-500 to-blue-500 shadow-md fixed w-full top-0 left-0 z-50">
+      <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <h1 class="text-white text-2xl font-bold">Judge Dashboard</h1>
 
-  // Initial render
-  renderJudgeDashboard(judgeContainer);
+        <!-- User Profile Icon for Judge Dashboard -->
+        <div class="relative flex items-center gap-2 cursor-pointer ml-4" id="judgeUserIconContainer">
+          <img src="User Profile Icon.png" alt="Judge Profile" id="judgeUserIcon" class="w-10 h-10 rounded-full border-2 border-gray-300 shadow-sm">
 
-  // Auto-refresh on storage events
-  window.addEventListener('storage', (event) => {
-    if (['lastDeployTime', 'roundsData', 'adminRunning', 'processHTML'].includes(event.key)) {
-      console.log('🔔 Storage event detected, refreshing judge dashboard');
-      renderJudgeDashboard(judgeContainer);
-    }
-  });
+          <!-- Judge Dropdown -->
+          <div id="judgeDropdown" class="absolute right-0 mt-12 w-48 bg-white text-gray-800 shadow-lg rounded-lg py-3 z-50 opacity-0 scale-95 transform transition-all duration-200">
+            <p class="px-4 py-1 font-semibold">Username: <span class="judge-username"></span></p>
+            <p class="px-4 py-1 font-semibold">Role: <span class="judge-role"></span></p>
+            <button id="logoutBtn" class="w-full text-left px-4 py-2 mt-2 text-red-600 hover:bg-gray-100 rounded">Logout</button>
+          </div>
 
-  // Periodic check every 5s
-  setInterval(() => renderJudgeDashboard(judgeContainer), 5000);
-
-  // =======================
-  // JUDGE USER DROPDOWN & LOGOUT (with modal)
-  // =======================
-  const judgeUserIconContainer = document.getElementById('judgeUserIconContainer');
-  const judgeDropdown = document.getElementById('judgeDropdown');
-  const logoutBtn = document.getElementById('logoutBtn');
-  const logoutModal = document.getElementById('logoutModal');
-  const confirmLogout = document.getElementById('confirmLogout');
-  const cancelLogout = document.getElementById('cancelLogout');
-
-  // Set username and role in dropdown
-  const currentUser = localStorage.getItem('currentUser');
-  const currentRole = localStorage.getItem('currentRole');
-  if (currentUser && currentRole) {
-    const usernameEl = judgeDropdown.querySelector('.judge-username');
-    const roleEl = judgeDropdown.querySelector('.judge-role');
-    if (usernameEl) usernameEl.textContent = currentUser;
-    if (roleEl) roleEl.textContent = currentRole;
-  }
-
-  // Toggle dropdown on icon click
-  judgeUserIconContainer.addEventListener('click', (e) => {
-    e.stopPropagation();
-    judgeDropdown.classList.toggle('show');
-    judgeUserIconContainer.classList.toggle('active'); // rotate arrow
-  });
-
-  // Close dropdown when clicking outside
-  document.addEventListener('click', () => {
-    if (judgeDropdown.classList.contains('show')) {
-      judgeDropdown.classList.remove('show');
-      judgeUserIconContainer.classList.remove('active');
-    }
-  });
-
-  // Show modal
-logoutBtn.addEventListener('click', (e) => {
-  e.stopPropagation();
-  logoutModal.classList.add('show');
-});
-
-// Cancel logout
-cancelLogout.addEventListener('click', () => {
-  logoutModal.classList.remove('show');
-});
-
-// Confirm logout
-confirmLogout.addEventListener('click', () => {
-  ['currentUser', 'currentRole', 'roundsData', 'processHTML', 'lastDeployTime'].forEach(key => localStorage.removeItem(key));
-  localStorage.setItem('adminRunning', 'false');
-  window.location.href = 'default.html';
-});
-
- 
-// Close modal if clicking outside the modal card
-logoutModal.addEventListener('click', (e) => {
-  if (e.target === logoutModal) logoutModal.classList.remove('show');
-});
-
-   
-  
-  // =======================
-// Main render function
-// =======================
-function renderJudgeDashboard(container) {
-  container.innerHTML = '';
-
-  const processHTML = localStorage.getItem('processHTML');
-  let roundsData = [];
-  try {
-    roundsData = JSON.parse(localStorage.getItem('roundsData')) || [];
-  } catch (e) {
-    console.error('❌ Error parsing roundsData:', e);
-  }
-
-  const lastDeployTime = localStorage.getItem('lastDeployTime');
-  const adminRunning = localStorage.getItem('adminRunning');
-
-  // Empty state if no deploy data
-  if (adminRunning !== 'true' || !lastDeployTime || (!processHTML && (!roundsData || roundsData.length === 0))) {
-    container.innerHTML = `
-      <div class="flex flex-col items-center justify-center mt-20 text-gray-500">
-        <p class="text-lg font-semibold mb-4">No deployed rounds yet</p>
-        <p class="text-sm mb-6">Please wait until the admin deploys content</p>
-        <div class="loader-dots"><div></div><div></div><div></div></div>
+          <!-- Logout Confirmation Modal -->
+          <div id="logoutModal">
+            <div class="modal-card">
+              <h3>Are you sure you want to logout?</h3>
+              <div class="modal-buttons">
+                <button id="confirmLogout" class="btn-yes">Yes</button>
+                <button id="cancelLogout" class="btn-no">No</button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    `;
-    return;
-  }
+    </nav>
+  </header>
 
-  // Render admin snapshot
-  if (processHTML) container.innerHTML = processHTML;
+  <!-- Main Content -->
+  <main class="bg-slate-50 text-slate-800 pt-28">
+    <div id="judgeContainer" class="max-w-7xl mx-auto px-6 py-8"></div>
+  </main>
 
-  // Append roundsData if available (without extra Round X labels at bottom)
-  if (roundsData.length > 0) {
-    const roundsWrapper = document.createElement('div');
-    roundsWrapper.className = 'mt-10';
+  <!-- Criteria Modal -->
+  <div id="criteriaModal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="modal-card bg-white rounded-lg shadow-lg p-6 max-w-lg w-full">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold">Criteria</h2>
+        <button id="closeCriteriaModal" class="text-gray-500 hover:text-gray-700">&times;</button>
+      </div>
+      <div id="criteriaContent" class="space-y-2">
+        <!-- Criteria will be injected here by judge.js -->
+      </div>
+    </div>
+  </div>
 
-    roundsData.forEach((round) => {
-      const grid = document.createElement('div');
-      grid.className = 'grid grid-cols-2 md:grid-cols-3 gap-6';
-
-      Object.entries(round.savedImages || {}).forEach(([id, imageUrl]) => {
-        const card = document.createElement('div');
-        card.className = 'bg-white shadow rounded p-4 text-center contestant-card';
-        card.innerHTML = `
-          <img src="${imageUrl}" alt="Contestant ${id}" />
-          <p class="font-medium">Contestant ${id}</p>
-        `;
-        grid.appendChild(card);
-      });
-
-      roundsWrapper.appendChild(grid);
-    });
-
-    container.appendChild(roundsWrapper);
-  }
-}
-})
+  <script src="judge.js"></script>
+</body>
+</html>
