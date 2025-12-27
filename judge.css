@@ -245,3 +245,34 @@
 .modal-buttons .btn-no:hover {
   background-color: #d1d5db;
 }
+
+/* ======= QUESTION MARK CRITERIA (JUDGE DASHBOARD) ======= */
+.criteria-title {
+  font-weight: 700;
+  font-size: 1.125rem; /* text-lg */
+  color: #4f46e5;       /* indigo-700 */
+}
+
+.criteria-max {
+  font-size: 0.875rem;  /* text-sm */
+  color: #4b5563;       /* gray-600 */
+  margin-bottom: 0.5rem;
+}
+
+.criteria-block ul {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+
+/* ======= SPACING OF IMAGES ICONS======= */
+.images-icon:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s;
+}
+
+.help-icon:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s;
+}
