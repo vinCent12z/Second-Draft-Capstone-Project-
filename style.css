@@ -641,4 +641,3 @@ input:focus, textarea:focus {
   position: fixed;
   z-index: 1000; /* keep modal above overlay */
 }
-
