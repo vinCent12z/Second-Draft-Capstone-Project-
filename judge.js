@@ -58,54 +58,128 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.target === logoutModal) logoutModal.classList.remove('show');
   });
 
-  // =======================
-  // MAIN RENDER FUNCTION
-  // =======================
-  function renderJudgeDashboard(container) {
-    const processHTML = localStorage.getItem('processHTML');
-    const roundsData = JSON.parse(localStorage.getItem('roundsData') || '[]');
-    const lastDeployTime = localStorage.getItem('lastDeployTime');
-    const adminRunning = localStorage.getItem('adminRunning');
+ // =======================
+// MAIN RENDER FUNCTION
+// =======================
+function renderJudgeDashboard(container) {
+  const processHTML = localStorage.getItem('processHTML');
+  const roundsData = JSON.parse(localStorage.getItem('roundsData') || '[]');
+  const lastDeployTime = localStorage.getItem('lastDeployTime');
+  const adminRunning = localStorage.getItem('adminRunning');
 
-    if (adminRunning !== 'true' || !lastDeployTime || (!processHTML && roundsData.length === 0)) {
-      container.innerHTML = `
-        <div class="flex flex-col items-center justify-center mt-20 text-gray-500">
-          <p class="text-lg font-semibold mb-4">No deployed rounds yet</p>
-          <p class="text-sm mb-6">Please wait until the admin deploys content</p>
-          <div class="loader-dots"><div></div><div></div><div></div></div>
-        </div>
-      `;
-      lastRenderedDeployTime = null;
-      return;
-    }
-
-    lastRenderedDeployTime = lastDeployTime;
-    container.innerHTML = processHTML;
-
-    // Optional extra gallery
-    if (roundsData.length > 0) {
-      const roundsWrapper = document.createElement('div');
-      roundsWrapper.className = 'mt-10';
-      roundsData.forEach(round => {
-        const grid = document.createElement('div');
-        grid.className = 'grid grid-cols-2 md:grid-cols-3 gap-6';
-        Object.entries(round.savedImages || {}).forEach(([id, imageUrl]) => {
-          const card = document.createElement('div');
-          card.className = 'bg-white shadow rounded p-4 text-center contestant-card';
-          card.innerHTML = `
-            <img src="${imageUrl}" alt="Contestant ${id}" />
-            <p class="font-medium">Contestant ${id}</p>
-          `;
-          grid.appendChild(card);
-        });
-        roundsWrapper.appendChild(grid);
-      });
-      container.appendChild(roundsWrapper);
-    }
-
-    // Activate help icons
-    bindCriteriaModal(container);
+  if (adminRunning !== 'true' || !lastDeployTime || (!processHTML && roundsData.length === 0)) {
+    container.innerHTML = `
+      <div class="flex flex-col items-center justify-center mt-20 text-gray-500">
+        <p class="text-lg font-semibold mb-4">No deployed rounds yet</p>
+        <p class="text-sm mb-6">Please wait until the admin deploys content</p>
+        <div class="loader-dots"><div></div><div></div><div></div></div>
+      </div>
+    `;
+    lastRenderedDeployTime = null;
+    return;
   }
+
+  lastRenderedDeployTime = lastDeployTime;
+  container.innerHTML = processHTML;
+
+  // =======================
+  // Add Images + Help Icons per round
+  // =======================
+  roundsData.forEach(round => {
+    // Find or create round container
+    let roundContainer = container.querySelector(`#round-${round.roundNumber}`);
+    if (!roundContainer) {
+      roundContainer = document.createElement('div');
+      roundContainer.id = `round-${round.roundNumber}`;
+      roundContainer.className = 'round-container mb-4';
+      container.appendChild(roundContainer);
+    }
+
+    // Create icon wrapper
+    let iconWrapper = roundContainer.querySelector('.icon-wrapper');
+    if (!iconWrapper) {
+      iconWrapper = document.createElement('div');
+      iconWrapper.className = 'flex items-center gap-2 justify-end mb-2 icon-wrapper';
+      roundContainer.prepend(iconWrapper);
+    }
+    
+  });
+
+  // =======================
+  // Render contestant cards (gallery) per round
+  // =======================
+  if (roundsData.length > 0) {
+    const roundsWrapper = document.createElement('div');
+    roundsWrapper.className = 'mt-2';
+    roundsData.forEach(round => {
+      const grid = document.createElement('div');
+      grid.className = 'grid grid-cols-2 md:grid-cols-3 gap-6 mb-6';
+      grid.dataset.round = round.roundNumber;
+      Object.entries(round.savedImages || {}).forEach(([id, imageUrl]) => {
+        const card = document.createElement('div');
+        card.className = 'bg-white shadow rounded p-4 text-center contestant-card';
+        card.innerHTML = `
+          <img src="${imageUrl}" alt="Contestant ${id}" />
+          <p class="font-medium">Contestant ${id}</p>
+        `;
+        grid.appendChild(card);
+      });
+      roundsWrapper.appendChild(grid);
+    });
+    container.appendChild(roundsWrapper);
+  }
+
+  // Activate help icons
+  bindCriteriaModal(container);
+
+  // =======================
+  // Images Icon Modal
+  // =======================
+  let imagesModal = document.getElementById('imagesModal');
+  if (!imagesModal) {
+    imagesModal = document.createElement('div');
+    imagesModal.id = 'imagesModal';
+    imagesModal.className = 'modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+    imagesModal.innerHTML = `
+      <div class="modal-card bg-white rounded-lg shadow-lg p-6 max-w-3xl w-full overflow-auto">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-bold">Round Images</h2>
+          <button id="closeImagesModal" class="text-gray-500 hover:text-gray-700">&times;</button>
+        </div>
+        <div id="imagesContent" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+      </div>
+    `;
+    document.body.appendChild(imagesModal);
+
+    // Close handlers
+    document.getElementById('closeImagesModal').addEventListener('click', () => imagesModal.classList.add('hidden'));
+    imagesModal.addEventListener('click', e => {
+      if (e.target === imagesModal) imagesModal.classList.add('hidden');
+    });
+  }
+
+  container.addEventListener('click', (e) => {
+    const clickedImagesIcon = e.target.closest('.images-icon');
+    if (!clickedImagesIcon) return;
+
+    const roundNumber = parseInt(clickedImagesIcon.dataset.round, 10);
+    const round = roundsData.find(r => r.roundNumber === roundNumber);
+    if (!round) return;
+
+    // Populate modal with images
+    const imagesContent = document.getElementById('imagesContent');
+    imagesContent.innerHTML = ''; // clear previous
+
+    Object.entries(round.savedImages || {}).forEach(([id, url]) => {
+      const imgWrapper = document.createElement('div');
+      imgWrapper.className = 'p-1 border rounded bg-gray-50';
+      imgWrapper.innerHTML = `<img src="${url}" alt="Contestant ${id}" class="w-full h-auto rounded" />`;
+      imagesContent.appendChild(imgWrapper);
+    });
+
+    imagesModal.classList.remove('hidden');
+  });
+}
 
  // =======================
 // ACTIVATE HELP ICONS (FULL CRITERIA BREAKDOWN)
