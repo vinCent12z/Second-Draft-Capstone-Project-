@@ -276,3 +276,99 @@
   transform: scale(1.1);
   transition: transform 0.2s;
 }
+
+/* ======= INPUT FIELDS JUDGE DASHBOARD SCORES (UPDATED CODE!) ======= */
+.score-input {
+  -webkit-appearance: none;    /* Chrome, Safari, Edge, Opera */
+  -moz-appearance: textfield;  /* Firefox */
+  appearance: textfield;       /* Standard property for modern browsers */
+
+  display: block;
+  margin: 0 auto;              /* center horizontally in cell */
+  text-align: center;
+  font-weight: 600;
+
+  width: 60px;                 /* compact box */
+  height: 28px;
+  line-height: 1.4rem;
+
+  border: none;                /* seamless by default */
+  background-color: transparent;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+/* Hover effect: subtle highlight + scale up */
+.score-input:hover {
+  background-color: #f3f4f6;   /* light gray highlight */
+  transform: scale(1.05);      /* slight zoom */
+  cursor: pointer;
+}
+
+/* Focus state: clear border + glow */
+.score-input:focus {
+  outline: none;
+  border: 2px solid #4f46e5;
+  border-radius: 4px;
+  background-color: #fff;
+  box-shadow: 0 0 0 2px rgba(79,70,229,0.3);
+  transform: scale(1.05);      /* keep zoom while editing */
+}
+
+/* Smoothly return to normal size when hover/focus ends */
+.score-input:not(:hover):not(:focus) {
+  transform: scale(1);         /* back to normal */
+  background-color: transparent;
+}
+
+/* Remove inner/outer spin buttons (WebKit browsers) */
+.score-input::-webkit-inner-spin-button,
+.score-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ======= SCORE TOTAL STYLING ======= */
+.score-total {
+  margin-left: 1rem;
+  font-weight: 700;
+  color: #4f46e5;   /* normal indigo */
+  display: inline-block;
+  min-width: 80px;
+  text-align: left;
+}
+
+/* Warning style when exceeding 100 */
+.score-total.over-limit {
+  color: #dc2626;   /* red */
+  font-weight: 800;
+}
+
+/* Shake animation */
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+  100% { transform: translateX(0); }
+}
+.score-total.shake {
+  animation: shake 0.5s;
+}
+
+/* Red highlight for cells when total exceeds */
+.over-limit-cell {
+  border: 2px solid #dc2626 !important;
+  background-color: #fee2e2; /* light red background */
+}
+
+/* Red highlight for blank cells */
+.blank-cell {
+  border: 2px solid #dc2626 !important;
+  background-color: #fee2e2; /* light red background */
+}
+
+/* Submitted total styling (green, matches Submitted badge) */
+.score-total.submitted-total {
+  color: #16a34a; /* green-600 */
+  font-weight: 800;
+}
