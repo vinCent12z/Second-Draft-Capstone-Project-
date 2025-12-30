@@ -29,6 +29,7 @@
   display: flex;
   gap: 0.5rem;
 }
+
 .loader-dots div {
   width: 12px;
   height: 12px;
@@ -36,6 +37,7 @@
   border-radius: 50%;
   animation: bounce 0.6s infinite alternate;
 }
+
 .loader-dots div:nth-child(2) { animation-delay: 0.2s; }
 .loader-dots div:nth-child(3) { animation-delay: 0.4s; }
 
@@ -53,6 +55,7 @@
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   margin-bottom: 2rem;
 }
+
 .round-gallery-section h2 {
   color: #4f46e5;
   font-weight: 700;
@@ -79,10 +82,12 @@
   border: 2px solid #ccc;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
+
 .contestant-card img:hover {
   transform: scale(1.05);
   box-shadow: 0 0 10px rgba(0,0,0,0.2);
 }
+
 .contestant-card p {
   margin-top: 0.5rem;
   font-weight: 600;
@@ -96,7 +101,7 @@
   top: 100%;
   margin-top: 0.5rem;
   width: 14rem;
-  background: linear-gradient(145deg, rgba(255,255,255,0.85), rgba(240,244,255,0.85)); /* semi-transparent for blur */
+  background: linear-gradient(145deg, rgba(255,255,255,0.85), rgba(240,244,255,0.85));
   color: #1f2937;
   border-radius: 0.75rem;
   box-shadow: 0 12px 30px rgba(0,0,0,0.18);
@@ -107,20 +112,16 @@
   transform: scale(0.95);
   transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
   pointer-events: none;
-
-  /* Backdrop blur: vendor-prefixed first, standard after */
-  -webkit-backdrop-filter: blur(10px);  /* Safari/iOS */
-  backdrop-filter: blur(10px);          /* modern browsers */
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
 }
 
-/* Show dropdown */
 #judgeDropdown.show {
   opacity: 1;
   transform: scale(1);
   pointer-events: auto;
 }
 
-/* Username & Role text */
 #judgeDropdown p {
   padding: 0.5rem 1.25rem;
   font-weight: 600;
@@ -129,12 +130,12 @@
   transition: all 0.2s ease-in-out;
   border-radius: 0.5rem;
 }
+
 #judgeDropdown p:hover {
-  background-color: #e0e7ff; /* light indigo background */
-  color: #4f46e5; /* indigo text */
+  background-color: #e0e7ff;
+  color: #4f46e5;
 }
 
-/* Logout button */
 #judgeDropdown button {
   width: 100%;
   text-align: left;
@@ -147,8 +148,9 @@
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 }
+
 #judgeDropdown button:hover {
-  background-color: #f0e7ff; /* subtle purple highlight */
+  background-color: #f0e7ff;
   color: #4f46e5;
 }
 
@@ -161,11 +163,11 @@
   color: #ffffff;
   transition: transform 0.25s ease;
 }
+
 #judgeUserIconContainer.active::after {
   transform: rotate(-180deg);
 }
 
-/* Optional: subtle hover on icon itself */
 #judgeUserIconContainer:hover #judgeUserIcon {
   transform: scale(1.05);
   transition: transform 0.2s ease;
@@ -265,85 +267,77 @@
   margin-top: 0.5rem;
 }
 
-
-/* ======= SPACING OF IMAGES ICONS======= */
-.images-icon:hover {
-  transform: scale(1.1);
-  transition: transform 0.2s;
-}
-
+/* ======= SPACING OF IMAGES ICONS ======= */
+.images-icon:hover,
 .help-icon:hover {
   transform: scale(1.1);
   transition: transform 0.2s;
 }
 
-/* ======= INPUT FIELDS JUDGE DASHBOARD SCORES (UPDATED CODE!) ======= */
+/* ======= INPUT FIELDS JUDGE DASHBOARD SCORES ======= */
 .score-input {
-  -webkit-appearance: none;    /* Chrome, Safari, Edge, Opera */
-  -moz-appearance: textfield;  /* Firefox */
-  appearance: textfield;       /* Standard property for modern browsers */
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
 
   display: block;
-  margin: 0 auto;              /* center horizontally in cell */
+  margin: 0 auto;
   text-align: center;
   font-weight: 600;
-
-  width: 60px;                 /* compact box */
+  width: 60px;
   height: 28px;
   line-height: 1.4rem;
 
-  border: none;                /* seamless by default */
+  border: none;
   background-color: transparent;
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
-/* Hover effect: subtle highlight + scale up */
 .score-input:hover {
-  background-color: #f3f4f6;   /* light gray highlight */
-  transform: scale(1.05);      /* slight zoom */
+  background-color: #f3f4f6;
+  transform: scale(1.05);
   cursor: pointer;
 }
 
-/* Focus state: clear border + glow */
 .score-input:focus {
   outline: none;
   border: 2px solid #4f46e5;
   border-radius: 4px;
   background-color: #fff;
   box-shadow: 0 0 0 2px rgba(79,70,229,0.3);
-  transform: scale(1.05);      /* keep zoom while editing */
+  transform: scale(1.05);
 }
 
-/* Smoothly return to normal size when hover/focus ends */
 .score-input:not(:hover):not(:focus) {
-  transform: scale(1);         /* back to normal */
+  transform: scale(1);
   background-color: transparent;
 }
 
-/* Remove inner/outer spin buttons (WebKit browsers) */
 .score-input::-webkit-inner-spin-button,
 .score-input::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-/* ======= SCORE TOTAL STYLING ======= */
 .score-total {
   margin-left: 1rem;
   font-weight: 700;
-  color: #4f46e5;   /* normal indigo */
+  color: #4f46e5;
   display: inline-block;
   min-width: 80px;
   text-align: left;
 }
 
-/* Warning style when exceeding 100 */
 .score-total.over-limit {
-  color: #dc2626;   /* red */
+  color: #dc2626;
   font-weight: 800;
 }
 
-/* Shake animation */
+.score-total.submitted-total {
+  color: #16a34a;
+  font-weight: 800;
+}
+
 @keyframes shake {
   0% { transform: translateX(0); }
   25% { transform: translateX(-4px); }
@@ -351,24 +345,13 @@
   75% { transform: translateX(-4px); }
   100% { transform: translateX(0); }
 }
+
 .score-total.shake {
   animation: shake 0.5s;
 }
 
-/* Red highlight for cells when total exceeds */
-.over-limit-cell {
-  border: 2px solid #dc2626 !important;
-  background-color: #fee2e2; /* light red background */
-}
-
-/* Red highlight for blank cells */
+.over-limit-cell,
 .blank-cell {
   border: 2px solid #dc2626 !important;
-  background-color: #fee2e2; /* light red background */
-}
-
-/* Submitted total styling (green, matches Submitted badge) */
-.score-total.submitted-total {
-  color: #16a34a; /* green-600 */
-  font-weight: 800;
+  background-color: #fee2e2;
 }
