@@ -1,287 +1,115 @@
-    /* Input field styling */ 
-    .input-field { 
-    width: 100%; 
-    border: 1px solid #d1d5db; /* gray-300 */ 
-    border-radius: 0.5rem; 
-    padding: 0.5rem 1rem; 
-    outline: none; 
-    transition: all 0.2s; 
-    } 
- 
-    .input-field:focus { 
-    box-shadow: 0 0 0 2px #60a5fa; /* blue-400 */ 
-    } 
- 
-    /* Modal buttons */ 
-    .modal-btn { 
-    width: 100%; 
-    padding: 0.5rem 0; 
-    border-radius: 0.5rem; 
-    font-weight: 600; 
-    transition: all 0.2s; 
-    } 
- 
-    .modal-btn:hover { 
-    transform: scale(1.02); 
-    } 
- 
-    .modal-btn:active { 
-    transform: scale(1); 
-    } 
- 
-   .toast { 
-  min-width: 220px; 
-  padding: 0.75rem 1rem; 
-  border-radius: 0.5rem; 
-  color: white; 
-  font-weight: 500; 
-  box-shadow: 0 4px 6px rgba(0,0,0,0.2); 
-  opacity: 0; 
-  transform: translateY(-20px); 
-  transition: all 0.4s ease; 
-} 
- 
-.toast-show { 
-  opacity: 1; 
-  transform: translateY(0); 
-} 
- 
-.toast-success { 
-  background-color: #16a34a; /* green-600 */ 
-} 
- 
-.toast-error { 
-  background-color: #dc2626; /* red-600 */ 
-} 
- 
-/* new content from here to footer*/ 
-/* What Can We Offer Section */ 
-.section__container { 
-  max-width: 1200px; 
-  margin: auto; 
-  padding: 5rem 1rem; 
-} 
- 
-.section__header { 
-  max-width: 900px; 
-  margin-inline: auto; 
-  margin-bottom: 1rem; 
-  font-size: 2.5rem; 
-  font-weight: 700; 
-  color: white; 
-  text-align: center; 
-} 
- 
-.section__header span { 
-  color: #fbbf24; 
-} 
- 
-.section__description { 
-  max-width: 600px; 
-  margin-inline: auto; 
-  margin-bottom: 3rem; 
-  color: rgba(255, 255, 255, 0.8); 
-  line-height: 1.75rem; 
-  text-align: center; 
-} 
- 
-.offer__grid { 
-  margin-top: 4rem; 
-  display: grid; 
-  gap: 2rem 1rem; 
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-} 
- 
-.offer__card img { 
-  width: 100%; 
-  height: 250px; 
-  object-fit: cover; 
-  margin-bottom: 1rem; 
-  border-radius: 10px; 
-} 
- 
-.offer__details { 
-  display: flex; 
-  align-items: flex-start; 
-} 
- 
-.offer__details span { 
-  font-size: 2rem; 
-  font-weight: 800; 
-  color: transparent; 
-  -webkit-text-stroke: 2px white; 
-  padding-right: 1rem; 
-} 
- 
-.offer__details div { 
-  padding-left: 1rem; 
-  border-left: 2px solid #fbbf24; 
-} 
- 
-.offer__details h4 { 
-  font-size: 1.2rem; 
-  font-weight: 700; 
-  color: white; 
-  margin-bottom: 0.5rem; 
-} 
- 
-.offer__details p { 
-  color: rgba(255, 255, 255, 0.8); 
-  line-height: 1.6; 
-} 
- 
-/* Meet Our Team Section */ 
-.team { 
-  padding: 5rem 1rem; 
-  text-align: center; 
-} 
- 
-.team__header { 
-  font-size: 2.5rem; 
-  font-weight: 700; 
-  color: white; 
-  margin-bottom: 1rem; 
-} 
- 
-.team__header span { 
-  color: #fbbf24; 
-} 
- 
-.team__description { 
-  max-width: 600px; 
-  margin: 0 auto 4rem; 
-  color: rgba(255, 255, 255, 0.8); 
-  line-height: 1.75rem; 
-} 
- 
-.team__grid { 
-  display: grid; 
-  gap: 2rem; 
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
-  max-width: 1200px; 
-  margin: 0 auto; 
-} 
- 
-.team__card { 
-  background-color: rgba(255, 255, 255, 0.95); 
-  padding: 2rem 1rem; 
-  border-radius: 1rem; 
-  box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.2); 
-  transition: 0.3s; 
-} 
- 
-.team__card:hover { 
-  transform: translateY(-10px); 
-  box-shadow: 5px 10px 30px rgba(0, 0, 0, 0.3); 
-} 
- 
-.team__card img { 
-  width: 100px; 
-  height: 100px; 
-  object-fit: cover; 
-  margin: 0 auto 1rem; 
-  border-radius: 50%; 
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1); 
-} 
- 
-.team__card h4 { 
-  font-size: 1.2rem; 
-  font-weight: 700; 
-  color: #1e40af; 
-  margin-bottom: 0.5rem; 
-} 
- 
-.team__card p { 
-  font-size: 0.95rem; 
-  color: #64748b; 
-} 
- 
-/* Footer Section */ 
-.footer { 
-  color: white; 
-  padding: 3rem 2rem 1rem; 
-  margin-top: auto; 
-  width: 100%; 
-} 
- 
-.footer__container { 
-  max-width: 1200px; 
-  margin: 0 auto; 
-  display: grid; 
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
-  gap: 3rem 2rem; 
-  margin-bottom: 2rem; 
-} 
- 
-.footer__logo { 
-  margin-bottom: 1rem; 
-} 
- 
-.footer__logo .logo { 
-  font-size: 1.5rem; 
-  font-weight: bold; 
-} 
- 
-.footer__col p { 
-  max-width: 400px; 
-  color: rgba(255, 255, 255, 0.8); 
-  line-height: 1.6; 
-} 
- 
-.footer__col h4 { 
-  margin-bottom: 1.5rem; 
-  font-size: 1.2rem; 
-  font-weight: 600; 
-  color: white; 
-} 
- 
-.footer__links { 
-  list-style: none; 
-  display: grid; 
-  gap: 0.75rem; 
-} 
- 
-.footer__links a { 
-  color: rgba(255, 255, 255, 0.8); 
-  text-decoration: none; 
-  transition: all 0.3s; 
-} 
- 
-.footer__links a:hover { 
-  color: #fbbf24; 
-  padding-left: 5px; 
-} 
- 
-.footer__bar { 
-  padding: 1.5rem 1rem; 
-  font-size: 0.9rem; 
-  color: rgba(255, 255, 255, 0.7); 
-  text-align: center; 
-  border-top: 1px solid rgba(255, 255, 255, 0.2); 
-  max-width: 1200px; 
-  margin: 0 auto; 
-} 
- 
-/* Responsive Design */ 
-@media (width > 540px) { 
-  .offer__grid { 
-    grid-template-columns: repeat(2, 1fr); 
-  } 
-} 
- 
-@media (width > 768px) { 
-  .offer__grid { 
-    grid-template-columns: repeat(3, 1fr); 
-    gap: 2rem; 
-  } 
-} 
- 
-@media (width > 1024px) { 
-  .offer__card { 
-    padding: 0.5rem; 
-  } 
-   
-  .offer__grid { 
-    gap: 2rem; 
-  } 
-} 
+document.addEventListener("DOMContentLoaded", () => {
+  // === Modal Elements ===
+  const loginBtn = document.getElementById("loginBtn");
+  const signupBtn = document.getElementById("signupBtn");
+  const loginModal = document.getElementById("loginModal");
+  const signupModal = document.getElementById("signupModal");
+  const closeLogin = document.getElementById("closeLogin");
+  const closeSignup = document.getElementById("closeSignup");
+  const loginSubmit = document.getElementById("loginSubmit");
+  const signupSubmit = document.getElementById("signupSubmit");
+
+  // === Show/Hide Modals ===
+  loginBtn.addEventListener("click", () => loginModal.classList.remove("hidden"));
+  signupBtn.addEventListener("click", () => signupModal.classList.remove("hidden"));
+  closeLogin.addEventListener("click", () => loginModal.classList.add("hidden"));
+  closeSignup.addEventListener("click", () => signupModal.classList.add("hidden"));
+
+  // === LocalStorage Key ===
+  const usersKey = "allUsers";
+
+  // === Helpers ===
+  function getUsers() {
+    return JSON.parse(localStorage.getItem(usersKey)) || [];
+  }
+
+  function saveUsers(users) {
+    localStorage.setItem(usersKey, JSON.stringify(users));
+  }
+
+  // === Floating Toast Function ===
+  function showToast(message, type = "error", duration = 3000) {
+    const container = document.getElementById("toastContainer");
+    const toast = document.createElement("div");
+    toast.classList.add("toast", type === "error" ? "toast-error" : "toast-success");
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    // Animate in
+    setTimeout(() => toast.classList.add("toast-show"), 50);
+
+    // Auto-hide after duration
+    setTimeout(() => {
+      toast.classList.remove("toast-show");
+      setTimeout(() => toast.remove(), 400);
+    }, duration);
+  }
+
+  // === SIGNUP LOGIC ===
+  signupSubmit.addEventListener("click", () => {
+    const username = document.getElementById("signupUsername").value.trim();
+    const password = document.getElementById("signupPassword").value.trim();
+
+    if (!username || !password) {
+      showToast("Please fill in all fields.", "error");
+      return;
+    }
+
+    let role;
+    if (username.includes("admin") && !username.includes("judge")) role = "admin";
+    else if (username.includes("judge") && !username.includes("admin")) role = "judge";
+    else {
+      showToast("Username must contain lowercase 'admin' or 'judge' only.", "error");
+      return;
+    }
+
+    const users = getUsers();
+    if (users.find(u => u.username === username)) {
+      showToast("Username already exists. Choose a different one.", "error");
+      return;
+    }
+
+    users.push({ username, password, role });
+    saveUsers(users);
+
+    showToast(`${role.toUpperCase()} account created successfully!`, "success");
+    signupModal.classList.add("hidden");
+
+    document.getElementById("signupUsername").value = "";
+    document.getElementById("signupPassword").value = "";
+  });
+
+  // === LOGIN LOGIC ===
+  loginSubmit.addEventListener("click", () => {
+    const username = document.getElementById("loginUsername").value.trim();
+    const password = document.getElementById("loginPassword").value.trim();
+
+    if (!username || !password) {
+      showToast("Please fill in all fields.", "error");
+      return;
+    }
+
+    if (!username.includes("admin") && !username.includes("judge")) {
+      showToast("Username must contain lowercase 'admin' or 'judge'.", "error");
+      return;
+    }
+
+    const users = getUsers();
+    const user = users.find(u => u.username === username && u.password === password);
+
+    if (!user) {
+      showToast("Invalid username or password.", "error");
+      return;
+    }
+
+    localStorage.setItem("currentUser", user.username);
+    localStorage.setItem("currentRole", user.role);
+
+    showToast(`Welcome back, ${user.username}!`, "success");
+
+    setTimeout(() => {
+      if (user.role === "admin") window.location.href = "admin.html";
+      else window.location.href = "judge.html";
+    }, 1000);
+  });
+});
