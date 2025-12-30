@@ -1,66 +1,1270 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Judge Dashboard</title>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="judge.css" />
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-50 text-slate-800">
+// =======================
+// ELEMENTS
+// =======================
+const navLinks = document.querySelectorAll('nav a');
+const processBtn = document.getElementById('processBtn');
+const pages = document.querySelectorAll('.page');
+const processContainer = document.getElementById('processContainer');
+const processForm = document.getElementById('processForm');
+const helpIcon = document.getElementById('helpIcon');
+const helpModal = document.getElementById('helpModal');
+const closeHelp = document.getElementById('closeHelp');
+const customizeBtn = document.getElementById('customizeBtn');
+const customizeModal = document.getElementById('customizeModal');
+const closeCustomize = document.getElementById('closeCustomize');
+const cancelCustomize = document.getElementById('cancelCustomize');
+const saveCustomize = document.getElementById('saveCustomize');
+const editBtn = document.getElementById('editCriteriaBtn');
+const addCriteriaBtn = document.getElementById('addCriteriaBtn');
+const criteriaList = document.getElementById('criteriaList');
+const criteriaEditForm = document.getElementById('criteriaEditForm');
+const criteriaActions = document.getElementById('criteriaActions');
+const saveBtn = document.getElementById('saveCriteriaBtn');
+const cancelBtn = document.getElementById('cancelCriteriaBtn');
+const saveMessage = document.getElementById('criteriaSaveMessage');
+const contestantTableHeader = document.getElementById('contestantTableHeader');
+const tableBody = document.getElementById('tableBody');
+const insertPhotoBtn = document.getElementById('insertPhotoBtn');
+const processImageGallery = document.getElementById('processImageGallery');
+const finalizationModal = document.getElementById('finalizationModal');
+const closeFinalization = document.getElementById('closeFinalization');
+const backFinalize = document.getElementById('backFinalize');
+const confirmFinalize = document.getElementById('confirmFinalize');
+const finalJudgeNumber = document.getElementById('finalJudgeNumber');
+const judgeListContainer = document.getElementById('judgeListContainer');
+const deployBtn = document.getElementById('deployBtn');
+const contestantNumberInput = document.getElementById('customContestantNumber');
+const manualAddRoundBtn = document.getElementById('manualAddRoundBtn');
+const addRoundYes = document.getElementById('addRoundYes');
+const addRoundNo = document.getElementById('addRoundNo');
+const addRoundModal = document.getElementById('addRoundModal');
 
-  <!-- Header / Navigation -->
-  <header>
-    <nav class="bg-gradient-to-r from-indigo-500 to-blue-500 shadow-md fixed w-full top-0 left-0 z-50">
-      <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        <h1 class="text-white text-2xl font-bold">Judge Dashboard</h1>
+// Admin dropdown elements
+const adminUserIconContainer = document.getElementById('adminUserIconContainer');
+const adminDropdown = document.getElementById('adminDropdown');
+const logoutBtn = document.getElementById('logoutBtn');
+const logoutModal = document.getElementById('logoutModal');
+const confirmLogout = document.getElementById('confirmLogout');
+const cancelLogout = document.getElementById('cancelLogout');
 
-        <!-- User Profile Icon for Judge Dashboard -->
-        <div class="relative flex items-center gap-2 cursor-pointer ml-4" id="judgeUserIconContainer">
-          <img src="User Profile Icon.png" alt="Judge Profile" id="judgeUserIcon" class="w-10 h-10 rounded-full border-2 border-gray-300 shadow-sm">
+// Admin Restrictions
+const currentUser = localStorage.getItem("currentUser");
+const currentRole = localStorage.getItem("currentRole");
+if (!currentUser || currentRole !== "admin") {
+  alert("Unauthorized access. Please login as admin.");
+  window.location.href = "index.html";
+}
 
-          <!-- Judge Dropdown -->
-          <div id="judgeDropdown" class="absolute right-0 mt-12 w-48 bg-white text-gray-800 shadow-lg rounded-lg py-3 z-50 opacity-0 scale-95 transform transition-all duration-200">
-            <p class="px-4 py-1 font-semibold">Username: <span class="judge-username"></span></p>
-            <p class="px-4 py-1 font-semibold">Role: <span class="judge-role"></span></p>
-            <button id="logoutBtn" class="w-full text-left px-4 py-2 mt-2 text-red-600 hover:bg-gray-100 rounded">Logout</button>
-          </div>
+// Remove button for criteria (dynamic)
+const removeCriteriaBtn = document.createElement("button");
+removeCriteriaBtn.id = "removeCriteriaBtn";
+removeCriteriaBtn.textContent = "Remove Criteria";
+removeCriteriaBtn.className = "px-6 py-2 bg-red-500 text-white rounded-xl shadow hover:bg-red-600 transition ml-auto interactive-btn";
+removeCriteriaBtn.style.display = "none";
 
-          <!-- Logout Confirmation Modal -->
-          <div id="logoutModal">
-            <div class="modal-card">
-              <h3>Are you sure you want to logout?</h3>
-              <div class="modal-buttons">
-                <button id="confirmLogout" class="btn-yes">Yes</button>
-                <button id="cancelLogout" class="btn-no">No</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </nav>
-  </header>
+// =======================
+// STATE
+// =======================
+pages.forEach(p => p.classList.add('hidden'));
+document.getElementById('dashboard').classList.remove('hidden');
+processForm.style.display = 'none';
+helpIcon.style.display = 'none';
+addCriteriaBtn.style.display = 'none';
+if (processImageGallery) processImageGallery.style.display = 'none';
+processContainer.classList.remove('active');
 
-  <!-- Main Content -->
-  <main class="bg-slate-50 text-slate-800 pt-28">
-    <div id="judgeContainer" class="max-w-7xl mx-auto px-6 py-8"></div>
-  </main>
+let tempImages = {};   // ⚡ Only current round ephemeral images
+let savedImages = {};  // ⚡ Current round finalized images
+let rounds = [];       // 🏆 Array of finalized rounds
 
-  <!-- Criteria Modal -->
-  <div id="criteriaModal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="modal-card bg-white rounded-lg shadow-lg p-6 max-w-lg w-full">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold">Criteria</h2>
-        <button id="closeCriteriaModal" class="text-gray-500 hover:text-gray-700">&times;</button>
-      </div>
-      <div id="criteriaContent" class="space-y-2">
-        <!-- Criteria will be injected here by judge.js -->
-      </div>
-    </div>
-  </div>
+let lastContestantCount = null;
 
-  <script src="judge.js"></script>
-</body>
-</html>
+// =======================
+// RESET INSERTED PHOTOS WHEN CONTESTANT NUMBER CHANGES
+// =======================
+contestantNumberInput.addEventListener('change', () => {
+  const newCount = parseInt(contestantNumberInput.value, 10);
+  if (!newCount || newCount <= 0 || newCount === lastContestantCount) return;
 
+  // ⚡ Reset only current round ephemeral images
+  tempImages = {};
+
+  // Clear only the current round gallery section (if exists)
+  const currentRoundGallery = document.querySelector(`.round-gallery-section[data-round='${currentRound.roundNumber}']`);
+  if (currentRoundGallery) {
+    currentRoundGallery.remove();
+  }
+
+  lastContestantCount = newCount;
+  console.log(`Contestant number changed to ${newCount}. Current round images reset.`);
+});
+
+window.totalJudges = 0;
+let judgeNames = [];
+let currentRound = {
+  roundNumber: 1,
+  savedImages: {},
+  eventName: '',
+  totalContestants: 0,
+  criteriaCount: 0,
+  judges: []
+};
+let isFirstRoundFinalized = false;
+let allowEditVisible = false;
+let isEditingCriteria = false;
+let disableMainHelpModal = false;
+
+
+// =======================
+// SPA NAVIGATION
+// =======================
+function showPage(targetId) {
+  pages.forEach(p => p.classList.add('hidden'));
+  processForm.style.display = 'none';
+  helpIcon.style.display = 'none';
+  if (processImageGallery) processImageGallery.style.display = 'none';
+
+  const targetPage = document.getElementById(targetId);
+  if (targetPage) targetPage.classList.remove('hidden');
+
+  if (targetId === 'processContainer') {
+    processForm.style.display = 'block';
+    if (!disableMainHelpModal) helpIcon.style.display = 'flex';
+    if ((Object.keys(savedImages).length > 0) || rounds.length > 0) {
+      processImageGallery.style.display = 'flex';
+      processImageGallery.style.flexDirection = 'column';
+    }
+    if (isFirstRoundFinalized) {
+      manualAddRoundBtn.style.display = 'inline-block';
+      deployBtn.style.display = 'inline-block';
+    } else {
+      manualAddRoundBtn.style.display = 'none';
+      deployBtn.style.display = 'none';
+    }
+  } else {
+    manualAddRoundBtn.style.display = 'none';
+    deployBtn.style.display = 'none';
+  }
+}
+
+navLinks.forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    showPage(link.getAttribute('href').replace('#',''));
+  });
+});
+processBtn.addEventListener('click', () => showPage('processContainer'));
+
+
+// =======================
+// TABLE MANAGEMENT
+// =======================
+function syncTableHeaders() {
+  const titles = Array.from(criteriaList.querySelectorAll('.criteria-title')).map(el => el.textContent.trim());
+  let headerHTML = '<th style="min-width:80px">Contestant No.</th>';
+  titles.forEach(title => headerHTML += `<th style="min-width:80px">${title}</th>`);
+  contestantTableHeader.innerHTML = `<tr>${headerHTML}</tr>`;
+}
+
+function updateTable() {
+  syncTableHeaders();
+  const criteriaCount = criteriaList.querySelectorAll('.criteria-title').length;
+  for (let row of tableBody.children) {
+    while (row.children.length > criteriaCount + 1) row.removeChild(row.lastChild);
+    for (let j = row.children.length - 1; j < criteriaCount; j++) {
+      const td = document.createElement('td');
+      td.textContent = '';
+      td.style.height = '1.6rem';
+      td.style.textAlign = 'center';
+      row.appendChild(td);
+    }
+  }
+  lockMainTableLayout();
+  if (isEditingCriteria) adjustTableColumnWidths();
+}
+
+function lockMainTableLayout() {
+  const table = document.getElementById('contestantTable');
+  if (!table) return;
+  table.style.tableLayout = 'fixed';
+  table.style.width = 'auto';
+  table.querySelectorAll('th').forEach(th => {
+    th.style.minWidth = '80px';
+    th.style.textAlign = 'center';
+    th.style.boxSizing = 'border-box';
+  });
+  table.querySelectorAll('td').forEach(td => {
+    td.style.height = '1.6rem';
+    td.style.textAlign = 'center';
+    td.style.boxSizing = 'border-box';
+  });
+}
+
+function adjustTableColumnWidths() {
+  if (!isEditingCriteria) return;
+  const table = document.getElementById('contestantTable');
+  if (!table) return;
+  table.style.tableLayout = 'auto';
+  requestAnimationFrame(() => { table.style.width = '100%'; });
+}
+window.addEventListener('resize', adjustTableColumnWidths);
+
+// =======================
+// TEXTAREA AUTO-RESIZE
+// =======================
+function setupTextareaResize(textarea) {
+  textarea.style.width='100%';
+  textarea.style.minWidth='300px';
+  textarea.style.boxSizing='border-box';
+  textarea.style.resize='vertical';
+  textarea.style.overflow='hidden';
+  const resize = () => { textarea.style.height='auto'; textarea.style.height=textarea.scrollHeight+'px'; };
+  setTimeout(resize,10);
+  textarea.addEventListener('input',resize);
+  resize();
+}
+
+
+// =======================
+// EDIT CRITERIA MODAL
+// =======================
+if (editBtn) {
+  editBtn.addEventListener('click', openEditCriteria);
+
+  function openEditCriteria(){
+    isEditingCriteria = true;
+    criteriaList.classList.add("hidden");
+    editBtn.style.display = 'none';
+    editBtn.classList.add("hidden");
+    criteriaEditForm.classList.remove("hidden");
+    criteriaActions.classList.remove("hidden");
+    criteriaEditForm.innerHTML='';
+
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.id = "criteriaButtons";
+    buttonsContainer.className = "flex gap-2 mt-2";
+    buttonsContainer.appendChild(addCriteriaBtn);
+    buttonsContainer.appendChild(removeCriteriaBtn);
+    criteriaEditForm.appendChild(buttonsContainer);
+
+    addCriteriaBtn.style.display='inline-flex';
+    removeCriteriaBtn.style.display='inline-flex';
+
+    const titles = criteriaList.querySelectorAll("p.criteria-title");
+    const subs = criteriaList.querySelectorAll("ul.criteria-sublist");
+    titles.forEach((titleEl,i)=>{
+      const subText = Array.from(subs[i].querySelectorAll("li")).map(li=>li.textContent).join("\n");
+      addCriteriaPair(titleEl.textContent, subText);
+    });
+  }
+
+  function addCriteriaPair(title="", sublist=""){
+    const pairDiv = document.createElement('div');
+    pairDiv.className='criteria-pair';
+    const titleTA = document.createElement('textarea');
+    titleTA.placeholder="Main Criteria Title";
+    titleTA.dataset.type='title';
+    titleTA.value=title;
+    setupTextareaResize(titleTA);
+    const subTA = document.createElement('textarea');
+    subTA.placeholder="Sublist (one per line)";
+    subTA.dataset.type='sublist';
+    subTA.value=sublist;
+    setupTextareaResize(subTA);
+    pairDiv.appendChild(titleTA);
+    pairDiv.appendChild(subTA);
+    const container = document.getElementById('criteriaButtons');
+    criteriaEditForm.insertBefore(pairDiv, container);
+    criteriaEditForm.scrollTop=criteriaEditForm.scrollHeight;
+  }
+
+  addCriteriaBtn.onclick = () => addCriteriaPair();
+  removeCriteriaBtn.onclick = () => {
+    const pairs = criteriaEditForm.querySelectorAll(".criteria-pair");
+    if (pairs.length>0) pairs[pairs.length-1].remove();
+  };
+  saveBtn.onclick = saveCriteria;
+  cancelBtn.onclick = closeEditCriteria;
+
+  function saveCriteria(){
+  const pairs = criteriaEditForm.querySelectorAll(".criteria-pair");
+  criteriaList.innerHTML = '';
+
+  pairs.forEach(pair=>{
+    const title = pair.querySelector("textarea[data-type='title']").value.trim() || "New Criteria";
+    const subText = pair.querySelector("textarea[data-type='sublist']").value;
+
+    // Create wrapper block so we can later parse items easily
+    const block = document.createElement("div");
+    block.className = "criteria-block";
+
+    const p = document.createElement("p");
+    p.classList.add("criteria-title");
+    p.textContent = title;
+
+    const ul = document.createElement("ul");
+    ul.classList.add("criteria-sublist");
+    subText.split(/\n/).forEach(line=>{
+      if(line.trim()!==""){
+        const li = document.createElement("li");
+        li.textContent = line.trim();
+        ul.appendChild(li);
+      }
+    });
+
+    block.appendChild(p);
+    block.appendChild(ul);
+    criteriaList.appendChild(block);
+  });
+
+  updateTable();
+  closeEditCriteria();
+
+  if (currentRound.roundNumber > 1) {
+    helpModal.classList.remove('show');
+    helpModal.classList.add('hidden');
+
+    customizeModal.classList.remove('hidden');
+    setTimeout(() => customizeModal.classList.add('show'), 10);
+  } else {
+    saveMessage.classList.remove("opacity-0");
+    setTimeout(() => saveMessage.classList.add("opacity-0"), 2000);
+  }
+}
+
+
+  function closeEditCriteria(){
+    isEditingCriteria = false;
+    criteriaEditForm.innerHTML='';
+    criteriaEditForm.classList.add("hidden");
+    criteriaActions.classList.add("hidden");
+    addCriteriaBtn.style.display='none';
+    removeCriteriaBtn.style.display='none';
+    criteriaList.classList.remove("hidden");
+
+    if (editBtn) {
+      if (allowEditVisible) {
+        const helpContent = document.querySelector('#helpModal .modal-content');
+        if (helpContent && editBtn.parentElement !== helpContent) helpContent.appendChild(editBtn);
+        editBtn.style.display = 'inline-flex';
+        editBtn.classList.remove('hidden');
+      } else {
+        editBtn.style.display = 'none';
+        editBtn.classList.remove('hidden');
+      }
+    }
+  }
+}
+
+// =======================
+// HELP MODAL
+// =======================
+helpIcon.addEventListener('click', ()=> helpModal.classList.add('show'));
+closeHelp.addEventListener('click', ()=> helpModal.classList.remove('show'));
+
+// =======================
+// CUSTOMIZE MODAL & IMAGE LOGIC
+// =======================
+customizeBtn.addEventListener('click', ()=>{
+  customizeModal.classList.add('show');
+  customizeModal.classList.remove('hidden');
+
+  document.getElementById('customEventName').value='';
+
+  const currentTableCount = tableBody.children.length;
+  const savedCount = Object.keys(savedImages).length;
+  document.getElementById('customContestantNumber').value = currentTableCount || savedCount || '';
+
+  document.getElementById('customJudgeNumber').value = window.totalJudges > 0 ? window.totalJudges : '';
+
+  tempImages = Object.assign({}, savedImages);
+});
+
+function closeCustomizeModal() {
+  customizeModal.classList.remove('show');
+  setTimeout(() => customizeModal.classList.add('hidden'), 150);
+}
+[closeCustomize, cancelCustomize].forEach(btn => btn.addEventListener('click', closeCustomizeModal));
+
+// =======================
+// SAVE CUSTOMIZE
+// =======================
+saveCustomize.addEventListener('click', ()=>{
+  const eventName = document.getElementById("customEventName").value.trim();
+  const contestantNum = parseInt(document.getElementById("customContestantNumber").value.trim());
+  const judgeNum = parseInt(document.getElementById("customJudgeNumber").value.trim());
+  let missing = [];
+  if(!eventName) missing.push("Event Name");
+  if(!contestantNum||contestantNum<=0) missing.push("Number of Contestants");
+  if(!judgeNum||judgeNum<=0) missing.push("Number of Judges");
+  if(missing.length>0){ alert(`⚠️ Please fill: ${missing.join(", ")}`); return; }
+
+  const totalImages = Object.keys(tempImages).length;
+  if(totalImages !== contestantNum){ alert(`⚠️ Assign exactly ${contestantNum} images. Currently: ${totalImages}`); return; }
+
+  window.totalJudges = judgeNum;
+
+  const mainTableBody = document.getElementById('tableBody');
+  mainTableBody.innerHTML = '';
+  const criteriaCount = criteriaList.querySelectorAll('.criteria-title').length;
+  for (let i = 1; i <= contestantNum; i++) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i}</td>`;
+    for (let j = 0; j < criteriaCount; j++) {
+      const td = document.createElement('td');
+      td.textContent = '';
+      td.style.textAlign = 'center';
+      td.style.height = '1.4rem';
+      tr.appendChild(td);
+    }
+    mainTableBody.appendChild(tr);
+  }
+  updateTable();
+  lockMainTableLayout();
+
+  closeCustomizeModal();
+  openFinalizationModal();
+});
+
+// =======================
+// INSERT PHOTO LOGIC (NO DUPLICATES PER ROUND)
+// =======================
+insertPhotoBtn.addEventListener('click', () => {
+  const totalContestants = parseInt(document.getElementById('customContestantNumber').value);
+
+  if (isNaN(totalContestants) || totalContestants <= 0) {
+    alert("Enter number of contestants first.");
+    return;
+  }
+
+  let nextNum = 1;
+  while (nextNum <= totalContestants && tempImages[nextNum]) nextNum++;
+
+  if (nextNum > totalContestants) {
+    alert("All contestants already have images.");
+    return;
+  }
+
+  const targetStr = prompt(
+    `Assign image to contestant number (1-${totalContestants}):`,
+    nextNum
+  );
+  if (targetStr === null) return;
+
+  const targetNum = parseInt(targetStr);
+  if (isNaN(targetNum) || targetNum < 1 || targetNum > totalContestants) {
+    alert(`Invalid number.`);
+    return;
+  }
+
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = 'image/*';
+  fileInput.click();
+
+  fileInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = ev => {
+      const imageData = ev.target.result;
+
+      // 🔒 DUPLICATE CHECK — CURRENT ROUND ONLY
+      const alreadyUsed = Object.values(tempImages).includes(imageData);
+if (alreadyUsed) {
+  alert("❌ This photo is already used in the current round. Please choose a different image.");
+  return;
+}
+
+
+      tempImages[targetNum] = imageData;
+      alert(`✅ Photo assigned to Contestant #${targetNum}. Click 'Save' to confirm.`);
+    };
+
+    reader.readAsDataURL(file);
+  });
+});
+
+// =======================
+// Helper: clone table and lock computed widths/minWidths (pixel-accurate)
+// =======================
+function cloneTableWithFixedStyle(sourceTable) {
+  // Ensure source is in DOM and visible for accurate measurement
+  if (!document.body.contains(sourceTable)) {
+    document.body.appendChild(sourceTable);
+  }
+
+  // Force reflow so computed sizes are stable
+  sourceTable.style.visibility = 'visible';
+  void sourceTable.offsetHeight;
+
+  // Measure header cells (pixel widths)
+  const sourceThs = Array.from(sourceTable.querySelectorAll('th'));
+  const thWidths = sourceThs.map(th => {
+    const r = th.getBoundingClientRect();
+    return Math.max(1, Math.round(r.width)); // integer px
+  });
+
+  // Measure whole table width
+  const tableRect = sourceTable.getBoundingClientRect();
+  const tableWidthPx = Math.max(1, Math.round(tableRect.width));
+
+  // Clone node structure
+  const clone = sourceTable.cloneNode(true);
+  clone.id = '';
+
+  // Ensure thead exists in clone
+  if (!clone.querySelector('thead')) {
+    const srcThead = sourceTable.querySelector('thead');
+    if (srcThead) {
+      const thead = document.createElement('thead');
+      thead.innerHTML = srcThead.innerHTML;
+      clone.insertBefore(thead, clone.firstChild);
+    }
+  }
+
+  // Apply explicit pixel widths to cloned header cells
+  const cloneThs = Array.from(clone.querySelectorAll('th'));
+  cloneThs.forEach((th, idx) => {
+    const w = thWidths[idx] || thWidths[0] || 100;
+    th.style.width = w + 'px';
+    th.style.minWidth = w + 'px';
+    th.style.boxSizing = 'border-box';
+  });
+
+  // If source has colgroup, clone and set widths there too
+  const srcColGroup = sourceTable.querySelector('colgroup');
+  if (srcColGroup) {
+    let cloneColGroup = clone.querySelector('colgroup');
+    if (!cloneColGroup) {
+      cloneColGroup = document.createElement('colgroup');
+      clone.insertBefore(cloneColGroup, clone.firstChild);
+    } else {
+      cloneColGroup.innerHTML = '';
+    }
+    thWidths.forEach(w => {
+      const col = document.createElement('col');
+      col.style.width = w + 'px';
+      cloneColGroup.appendChild(col);
+    });
+  }
+
+  // Lock table sizing
+  clone.style.tableLayout = 'fixed';
+  clone.style.width = tableWidthPx + 'px';
+  clone.style.minWidth = tableWidthPx + 'px';
+  clone.style.display = 'block';
+  clone.style.boxSizing = 'border-box';
+
+  return clone;
+}
+
+// =======================
+// ROUNDS CONTAINER HELPERS
+// =======================
+function ensureRoundsContainer() {
+  let roundsContainer = document.getElementById('roundsContainer');
+  if (!roundsContainer) {
+    roundsContainer = document.createElement('div');
+    roundsContainer.id = 'roundsContainer';
+    roundsContainer.className = 'flex flex-col gap-8 mt-6';
+    processForm.appendChild(roundsContainer);
+  }
+  return roundsContainer;
+}
+
+// =======================
+// CREATE ROUND WRAPPER
+// =======================
+function createRoundWrapperAndMoveJudgeCards(roundNumber, judgeCards) {
+  const roundsContainer = ensureRoundsContainer();
+
+  const roundWrapper = document.createElement('div');
+  roundWrapper.className = 'rounded-xl shadow-lg p-4 bg-gray-50';
+  roundWrapper.style.border = '2px solid #6366f1';
+
+  const headerRow = document.createElement('div');
+  headerRow.className = 'flex items-center justify-between mb-4';
+  const roundTitle = document.createElement('h1');
+  roundTitle.textContent = `ROUND ${roundNumber}`;
+  roundTitle.className = 'text-2xl font-bold text-indigo-600';
+  headerRow.appendChild(roundTitle);
+
+  roundWrapper.appendChild(headerRow);
+
+  const thisRoundJudgesContainer = document.createElement('div');
+  thisRoundJudgesContainer.className = 'flex flex-col items-center gap-6';
+  roundWrapper.appendChild(thisRoundJudgesContainer);
+
+  judgeCards.forEach(card => thisRoundJudgesContainer.appendChild(card));
+
+  roundsContainer.appendChild(roundWrapper);
+
+  const working = document.getElementById('judgesTablesContainer');
+  if (working) working.innerHTML = '';
+
+  return roundWrapper;
+}
+
+// =======================
+// OPEN/CLOSE FINALIZATION MODAL
+// =======================
+function openFinalizationModal() {
+  finalizationModal.classList.remove('hidden');
+  setTimeout(() => finalizationModal.classList.add('show'), 10);
+
+  const container = document.getElementById('judgeListContainer');
+  container.innerHTML = '';
+
+  for (let i = 1; i <= window.totalJudges; i++) {
+    const div = document.createElement('div');
+    div.className = 'flex flex-col items-start gap-1';
+
+    const label = document.createElement('label');
+    label.textContent = `Judge Number ${i}`;
+    label.className = 'font-semibold text-gray-700';
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = `Enter Judge ${i} Name`;
+    input.className = 'border rounded-md p-2 w-full';
+    input.dataset.required = 'true';
+
+    const error = document.createElement('p');
+    error.className = 'text-red-600 text-sm opacity-0 transition-opacity duration-300';
+    error.textContent = 'Judge name is required';
+
+    div.appendChild(label);
+    div.appendChild(input);
+    div.appendChild(error);
+
+    container.appendChild(div);
+  }
+}
+function closeFinalizationModal() {
+  finalizationModal.classList.remove('show');
+  setTimeout(() => finalizationModal.classList.add('hidden'), 300);
+}
+
+closeFinalization.addEventListener('click', closeFinalizationModal);
+backFinalize.addEventListener('click', () => {
+  closeFinalizationModal();
+  setTimeout(() => {
+    customizeModal.classList.remove('hidden');
+    setTimeout(() => customizeModal.classList.add('show'), 10);
+  }, 350);
+});
+
+// =======================
+// FINALIZE TABULATION (updated with per-round synced help icons)
+// =======================
+
+// Store criteria HTML per round to keep help modal in sync
+const roundsMeta = {}; // { [roundNumber]: { criteriaHTML, eventName } }
+
+confirmFinalize.addEventListener('click', () => {
+  const judgeInputs = document.querySelectorAll('#judgeListContainer input');
+  let allValid = true;
+
+  // Validate judge names
+  judgeInputs.forEach(input => {
+    const error = input.nextElementSibling;
+    if (!input.value.trim()) {
+      error.classList.remove('opacity-0');
+      error.classList.add('opacity-100');
+      allValid = false;
+    } else {
+      error.classList.remove('opacity-100');
+      error.classList.add('opacity-0');
+    }
+  });
+
+  if (!allValid) {
+    alert('⚠️ Please fill in all judge names before finalizing.');
+    return;
+  }
+
+  // Collect judge names
+  judgeNames = Array.from(judgeInputs).map(input => input.value.trim());
+  window.totalJudges = judgeNames.length;
+
+  const eventNameInput = document.getElementById('customEventName');
+  const contestantNumberInput = document.getElementById('customContestantNumber');
+
+  // Fallback to number of assigned images if contestant number is empty
+  let totalContestants = parseInt(contestantNumberInput.value, 10);
+  if (isNaN(totalContestants) || totalContestants <= 0) {
+    totalContestants = Object.keys(tempImages).length;
+  }
+
+  const criteriaCount = criteriaList.querySelectorAll('.criteria-title').length || 0;
+
+  // Snapshot round context
+  const roundNumber = currentRound.roundNumber;
+  const criteriaSnapshotHTML = criteriaList.innerHTML;
+  const eventNameSnapshot = eventNameInput.value || '';
+  roundsMeta[roundNumber] = { criteriaHTML: criteriaSnapshotHTML, eventName: eventNameSnapshot };
+
+  // Display event name
+  const eventNameDisplay = document.getElementById('eventNameDisplay');
+  if (eventNameDisplay) eventNameDisplay.textContent = eventNameSnapshot;
+
+  const baseTable = document.getElementById('contestantTable');
+  const judgeCards = [];
+
+  // Table sizing
+  const perColumnMin = 120;
+  const tableMinWidth = perColumnMin * (criteriaCount + 1);
+
+  // Build judge cards
+  judgeNames.forEach((judge, index) => {
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-lg shadow p-4 judge-table-container';
+    card.dataset.judge = index + 1;
+    card.style.width = '100%';
+    card.style.boxSizing = 'border-box';
+    card.style.position = 'relative';
+
+    // Event header
+    const eventHeader = document.createElement('h2');
+    eventHeader.textContent = eventNameSnapshot;
+    eventHeader.className = 'text-lg font-bold text-center mb-2';
+    card.appendChild(eventHeader);
+
+    // Scroll wrapper
+    const scrollWrap = document.createElement('div');
+    scrollWrap.className = 'judge-table-scroll';
+    scrollWrap.style.overflowX = 'auto';
+    scrollWrap.style.width = '100%';
+    card.appendChild(scrollWrap);
+
+    // Clone base table
+    const newTable = baseTable ? cloneTableWithFixedStyle(baseTable) : document.createElement('table');
+    newTable.id = '';
+
+    let tbody = newTable.querySelector('tbody');
+    if (!tbody) {
+      tbody = document.createElement('tbody');
+      newTable.appendChild(tbody);
+    }
+    tbody.innerHTML = '';
+
+    for (let i = 1; i <= totalContestants; i++) {
+      const tr = document.createElement('tr');
+      const tdIndex = document.createElement('td');
+      tdIndex.textContent = i;
+      tdIndex.style.textAlign = 'center';
+      tdIndex.style.minWidth = perColumnMin + 'px';
+      tdIndex.style.boxSizing = 'border-box';
+      tr.appendChild(tdIndex);
+
+      for (let j = 0; j < criteriaCount; j++) {
+        const td = document.createElement('td');
+        td.textContent = '';
+        td.style.textAlign = 'center';
+        td.style.minWidth = perColumnMin + 'px';
+        td.style.height = '1.4rem';
+        td.style.boxSizing = 'border-box';
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+
+    newTable.querySelectorAll('th').forEach(th => {
+      th.style.minWidth = perColumnMin + 'px';
+      th.style.textAlign = 'center';
+      th.style.boxSizing = 'border-box';
+    });
+
+    newTable.style.tableLayout = 'fixed';
+    newTable.style.display = 'block';
+    newTable.style.minWidth = tableMinWidth + 'px';
+    newTable.style.boxSizing = 'border-box';
+
+    scrollWrap.appendChild(newTable);
+
+    // Footer
+    const judgeFooter = document.createElement('div');
+    judgeFooter.className = 'judge-footer mt-3 text-center';
+    const judgeNameLine = document.createElement('p');
+    judgeNameLine.textContent = `APPROVED AND VERIFIED BY: ${judge}`;
+    judgeNameLine.style.fontWeight = '600';
+    judgeNameLine.style.color = '#4f46e5';
+    judgeNameLine.style.margin = '0';
+    const judgeNumberLine = document.createElement('p');
+    judgeNumberLine.textContent = `JUDGE NO. ${index + 1}`;
+    judgeNumberLine.style.fontWeight = '600';
+    judgeNumberLine.style.color = '#4f46e5';
+    judgeNumberLine.style.margin = '0';
+    judgeFooter.appendChild(judgeNameLine);
+    judgeFooter.appendChild(judgeNumberLine);
+    card.appendChild(judgeFooter);
+
+    // 🔵 Add help icon per judge card, bound to round/judge
+    const judgeHelpIcon = document.createElement('button');
+    judgeHelpIcon.className = 'help-icon absolute top-2 right-2 bg-blue-600 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg hover:bg-blue-700 transition';
+    judgeHelpIcon.textContent = '?';
+    judgeHelpIcon.title = `Help for Round ${roundNumber}, Judge ${index + 1}`;
+    judgeHelpIcon.dataset.round = String(roundNumber);
+    judgeHelpIcon.dataset.judge = String(index + 1);
+    card.appendChild(judgeHelpIcon);
+
+    judgeHelpIcon.addEventListener('click', () => {
+      const r = parseInt(judgeHelpIcon.dataset.round, 10);
+      const j = parseInt(judgeHelpIcon.dataset.judge, 10);
+
+      // Restore criteria snapshot for this round
+      const meta = roundsMeta[r];
+      if (meta && typeof meta.criteriaHTML === 'string') {
+        criteriaList.innerHTML = meta.criteriaHTML;
+      }
+
+      const modalTitle = helpModal.querySelector('h3');
+      if (modalTitle) {
+        modalTitle.textContent = `Criteria for Judging`;
+      }
+
+      helpModal.classList.remove('hidden');
+      setTimeout(() => helpModal.classList.add('show'), 10);
+    });
+
+    judgeCards.push(card);
+  });
+
+  // Create round wrapper and get reference (ensure the helper returns the wrapper)
+  const roundWrapper = createRoundWrapperAndMoveJudgeCards(currentRound.roundNumber, judgeCards);
+
+  // Hide per-card customize buttons
+  document.querySelectorAll('.judge-table-container .customize-btn').forEach(btn => btn.style.display = 'none');
+
+  // =========================
+  // SAVE IMAGES FOR THIS ROUND
+  // =========================
+  const roundImages = {};
+  Object.keys(tempImages).forEach(k => {
+    const num = parseInt(k, 10);
+    if (!isNaN(num) && num >= 1 && num <= totalContestants) {
+      roundImages[num] = tempImages[k];
+    }
+  });
+  savedImages = roundImages;
+
+  // =========================
+  // RIGHT-SIDE PER-ROUND GALLERY — stacked per round, fixed 3 columns per row
+  // =========================
+  processImageGallery.style.display = 'flex';
+  processImageGallery.style.flexDirection = 'column';
+  processImageGallery.style.alignItems = 'stretch';
+  processImageGallery.style.gap = '2rem'; // spacing between rounds
+  processImageGallery.style.maxHeight = '80vh';
+  processImageGallery.style.overflowY = 'auto';
+
+  // Create a section for this round
+  const roundGallerySection = document.createElement('div');
+  roundGallerySection.className = 'round-gallery-section'; // apply blue wrapper class
+  roundGallerySection.style.width = '100%';
+  roundGallerySection.style.boxSizing = 'border-box';
+
+  // Round title
+  const roundTitleRight = document.createElement('h3');
+  roundTitleRight.textContent = `ROUND ${currentRound.roundNumber} Contestant Images`;
+  roundGallerySection.appendChild(roundTitleRight);
+
+  // Strict 3 columns per row
+  const roundGallery = document.createElement('div');
+  roundGallery.className = 'grid gap-4';
+  roundGallery.style.gridTemplateColumns = 'repeat(3, 1fr)';
+
+  // Render contestants in exact order
+  const orderedNums = Object.keys(roundImages)
+    .map(n => parseInt(n, 10))
+    .filter(n => !isNaN(n))
+    .sort((a, b) => a - b);
+
+  orderedNums.forEach(num => {
+    const src = roundImages[num];
+    if (!src) return;
+
+    const card = document.createElement('div');
+    card.className = 'contestant-card flex flex-col items-center text-center';
+
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = `Contestant ${num}`;
+    img.style.width = '120px';
+    img.style.height = '120px';
+    img.style.objectFit = 'cover';
+    img.style.borderRadius = '0.5rem';
+    img.style.border = '1px solid #000';
+
+    const label = document.createElement('p');
+    label.className = 'contestant-label mt-1 font-semibold text-sm';
+    label.textContent = `Contestant #${num}`;
+
+    card.appendChild(img);
+    card.appendChild(label);
+    roundGallery.appendChild(card);
+  });
+
+  roundGallerySection.appendChild(roundGallery);
+
+  // Append this round section ONCE to the global gallery container
+  processImageGallery.appendChild(roundGallerySection);
+
+  // =========================
+  // UI updates and reset main template
+  // =========================
+  processContainer.classList.add('active');
+  if (helpIcon) helpIcon.style.display = 'flex';
+  contestantNumberInput.value = '';
+  const customJudgeNumberEl = document.getElementById('customJudgeNumber');
+  if (customJudgeNumberEl) customJudgeNumberEl.value = '';
+
+  const mainTableBody = document.getElementById('tableBody');
+  if (mainTableBody) {
+    mainTableBody.innerHTML = '';
+    for (let i = 1; i <= totalContestants; i++) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${i}</td>`;
+      for (let j = 0; j < criteriaCount; j++) tr.appendChild(document.createElement('td'));
+      mainTableBody.appendChild(tr);
+    }
+    updateTable();
+    lockMainTableLayout();
+  }
+
+  // Hide default main table and controls
+  if (baseTable) baseTable.style.display = 'none';
+  const mainCustomizeBtn = document.getElementById('customizeBtn');
+  if (mainCustomizeBtn) mainCustomizeBtn.style.display = 'none';
+  if (eventNameDisplay) eventNameDisplay.style.display = 'none';
+  if (editBtn) editBtn.style.display = 'none';
+
+  // Save round record with full criteria breakdown
+rounds.push({
+  roundNumber: currentRound.roundNumber,
+  judges: judgeNames,
+  criteriaCount,
+  totalContestants,
+  savedImages: { ...roundImages },
+  
+  criteria: Array.from(criteriaList.querySelectorAll('.criteria-title')).map(titleEl => {
+  const block = titleEl.closest('.criteria-block') || titleEl.parentElement;
+  const items = Array.from(block.querySelectorAll('li')).map(li =>
+    li.textContent.trim()
+  );
+
+  return {
+    name: titleEl.textContent.trim(),
+    maxPoints: '',
+    items
+  };
+})
+
+});
+
+
+
+  closeFinalizationModal();
+alert(`✅ Tabulation finalized successfully! Total Judges: ${window.totalJudges}`);
+
+isFirstRoundFinalized = true;
+disableMainHelpModal = true;   // 🔒 lock help modal forever
+showPage('processContainer');
+
+// 🔒 Hide the main help modal after first finalize
+helpModal.classList.remove('show');
+helpModal.classList.add('hidden');
+helpModal.style.display = 'none';   // 🔒 force hide
+if (helpIcon) helpIcon.style.display = 'none';
+});
+
+// =======================
+// ADMIN DROPDOWN & LOGOUT (SYNCED FROM LOGIN)
+// =======================
+
+function updateAdminDropdown() {
+  const username = localStorage.getItem("currentUser");
+  const role = localStorage.getItem("currentRole");
+
+  const usernameEl = document.getElementById("dropdownAdminUsername");
+  const roleEl = document.getElementById("dropdownAdminRole");
+
+  if (usernameEl) {
+    usernameEl.textContent = username ? username : "Unknown";
+  }
+
+  if (roleEl) {
+    roleEl.textContent = role ? role.toUpperCase() : "UNKNOWN";
+  }
+}
+
+updateAdminDropdown();
+
+// Toggle dropdown
+adminUserIconContainer.addEventListener('click', (e) => {
+  e.stopPropagation();
+  adminDropdown.classList.toggle('hidden');
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', () => {
+  adminDropdown.classList.add('hidden');
+});
+
+// Logout
+logoutBtn.addEventListener('click', () => {
+  adminDropdown.classList.add('hidden');
+  logoutModal.classList.remove('hidden');
+});
+
+confirmLogout.addEventListener('click', () => {
+  localStorage.removeItem("currentUser");
+  localStorage.removeItem("currentRole");
+
+  logoutModal.classList.add('hidden');
+  alert('Logged out successfully!');
+  window.location.href = "index.html";
+});
+
+cancelLogout.addEventListener('click', () => {
+  logoutModal.classList.add('hidden');
+});
+
+// =======================
+// OVERLAY HELPERS
+// =======================
+function showOverlay() {
+  let overlay = document.createElement('div');
+  overlay.id = 'pageOverlay';
+  overlay.className = 'overlay';
+  document.body.appendChild(overlay);
+}
+
+function hideOverlay() {
+  const overlay = document.getElementById('pageOverlay');
+  if (overlay) overlay.remove();
+}
+
+// =======================
+// MANUAL ADD ROUND BUTTON
+// =======================
+manualAddRoundBtn.addEventListener('click', () => {
+  addRoundModal.classList.remove('hidden');
+  setTimeout(() => addRoundModal.classList.add('show'), 10);
+});
+
+// =======================
+// ADD ROUND MODAL BUTTONS (updated)
+// =======================
+addRoundYes.addEventListener('click', () => {
+  // Close modal
+  addRoundModal.classList.remove('show');
+  setTimeout(() => addRoundModal.classList.add('hidden'), 300);
+
+  // Advance round and reset only ephemeral state for the new round
+  currentRound.roundNumber++;
+  tempImages = {};        // new uploads for this round
+  savedImages = {};       // working saved images for this round
+
+  // Rebuild main table body for the new round (keeps column structure)
+  const mainTableBody = document.getElementById('tableBody');
+  if (mainTableBody) mainTableBody.innerHTML = '';
+
+  const criteriaCount = criteriaList.querySelectorAll('.criteria-title').length;
+  const totalContestantsInput = document.getElementById('customContestantNumber');
+  const totalContestants = parseInt(totalContestantsInput.value, 10) || 0;
+
+  for (let i = 1; i <= totalContestants; i++) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i}</td>`;
+    for (let j = 0; j < criteriaCount; j++) {
+      const td = document.createElement('td');
+      td.textContent = '';
+      td.style.textAlign = 'center';
+      td.style.height = '1.4rem';
+      tr.appendChild(td);
+    }
+    mainTableBody.appendChild(tr);
+  }
+
+  // Keep main table and admin controls hidden while preparing the new round
+  const mainTableElement = document.getElementById('contestantTable');
+  const mainCustomizeBtn = document.getElementById('customizeBtn');
+  const eventNameDisplay = document.getElementById('eventNameDisplay');
+  if (mainTableElement) mainTableElement.style.display = 'none';
+  if (mainCustomizeBtn) mainCustomizeBtn.style.display = 'none';
+  if (eventNameDisplay) eventNameDisplay.style.display = 'none';
+
+  // Ensure process container layout is visible and ready
+  processContainer.style.display = 'flex';
+  processContainer.style.flexDirection = 'row';
+
+  // Clear customize inputs for the new round
+  const customEventEl = document.getElementById('customEventName');
+  const customContestantEl = document.getElementById('customContestantNumber');
+  const customJudgeEl = document.getElementById('customJudgeNumber');
+  if (customEventEl) customEventEl.value = '';
+  if (customContestantEl) customContestantEl.value = '';
+  if (customJudgeEl) customJudgeEl.value = '';
+
+  // Show process page and open the help/modal to review criteria
+  showPage('processContainer');
+
+  if (helpModal) {
+    helpModal.classList.remove('hidden');
+    setTimeout(() => helpModal.classList.add('show'), 10);
+  }
+
+  // Make Edit Criteria visible inside the help modal for quick edits
+  allowEditVisible = true;
+  const helpContent = document.querySelector('#helpModal .modal-content');
+  if (helpContent && editBtn) {
+    if (editBtn.parentElement !== helpContent) helpContent.appendChild(editBtn);
+    editBtn.style.display = 'inline-flex';
+    editBtn.classList.remove('hidden');
+    editBtn.style.margin = '1rem auto';
+    editBtn.style.justifyContent = 'center';
+
+    helpContent.style.display = 'flex';
+    helpContent.style.flexDirection = 'column';
+    helpContent.style.alignItems = 'center';
+  }
+
+  alert(`🆕 Starting Round ${currentRound.roundNumber} — review criteria first, then click Edit Criteria to modify.`);
+});
+
+addRoundNo.addEventListener('click', () => {
+  addRoundModal.classList.remove('show');
+  addRoundModal.classList.add('hidden');
+
+  isFirstRoundFinalized = true;
+  alert(`✅ Round ${currentRound.roundNumber} finalized. No additional rounds will be added.`);
+  showPage('processContainer');
+});
+
+// =======================
+// INITIAL TABLE
+// =======================
+updateTable();
+adjustTableColumnWidths();
+
+
+// ======================= 
+// DEPLOY BUTTON (ROUND-SAFE + SUBMISSION PERSISTENCE) UPDATED VERSION! DEC 30
+// =======================
+document.addEventListener('DOMContentLoaded', () => {
+  const deployBtn = document.getElementById('deployBtn');
+  if (!deployBtn) return;
+
+  deployBtn.addEventListener('click', async () => {
+    const updatedRounds = Array.isArray(rounds) ? rounds : [];
+    if (updatedRounds.length === 0) {
+      alert('ℹ️ No rounds to deploy. Please finalize at least one round first.');
+      return;
+    }
+
+    try {
+      // =========================
+      // 1️⃣ SANITIZE & REBUILD ROUNDS
+      // =========================
+      for (const round of updatedRounds) {
+
+        // 🔴 Always rebuild criteria from DOM
+        const titles = Array.from(
+          document.querySelectorAll('#criteriaList .criteria-title')
+        );
+
+        round.criteria = titles.map(titleEl => {
+          const block =
+            titleEl.closest('.criteria-block') ||
+            titleEl.parentElement;
+
+          const items = Array.from(block.querySelectorAll('li'))
+            .map(li => li.textContent.trim());
+
+          return {
+            name: titleEl.textContent.trim(),
+            maxPoints: '',
+            items
+          };
+        });
+
+        // =========================
+        // IMAGE SANITIZATION
+        // =========================
+        const sanitizedImages = {};
+        const savedImages = round.savedImages || {};
+
+        for (const [contestantId, imgData] of Object.entries(savedImages)) {
+          try {
+            if (
+              imgData instanceof File ||
+              (typeof imgData === 'string' && !imgData.startsWith('http'))
+            ) {
+              const url = await uploadImageToCloudinary(imgData);
+              sanitizedImages[contestantId] = url;
+            } else {
+              sanitizedImages[contestantId] = imgData;
+            }
+          } catch (err) {
+            console.error(`❌ Image upload failed for contestant ${contestantId}`, err);
+          }
+        }
+
+        round.savedImages = sanitizedImages;
+      }
+
+      // =========================
+      // 2️⃣ CLONE PROCESS HTML
+      // =========================
+      const processContainerEl = document.getElementById('processContainer');
+      if (processContainerEl) {
+        const cloned = processContainerEl.cloneNode(true);
+
+        const helpIcons = cloned.querySelectorAll('.help-icon');
+        helpIcons.forEach(icon => {
+          if (!icon.dataset.round) {
+            icon.dataset.round = String(icon.closest('[data-round]')?.dataset.round || 1);
+          }
+          if (!icon.dataset.judge) {
+            icon.dataset.judge = '1';
+          }
+        });
+
+        localStorage.setItem('processHTML', cloned.innerHTML.trim());
+      }
+
+      // =========================
+      // 3️⃣ DEPLOY META DATA
+      // =========================
+      const highestRoundNumber = Math.max(
+        ...updatedRounds.map(r => Number(r.roundNumber) || 1)
+      );
+
+      localStorage.setItem('roundsData', JSON.stringify(updatedRounds));
+      localStorage.setItem('adminRunning', 'true');
+
+      // 🔥 THIS IS THE KEY
+      localStorage.setItem(
+        'lastDeployedRoundNumber',
+        String(highestRoundNumber)
+      );
+
+      localStorage.setItem('lastDeployTime', Date.now().toString());
+
+      const totalContestants = updatedRounds.reduce((sum, r) => {
+        return sum + (r.totalContestants || Object.keys(r.savedImages || {}).length);
+      }, 0);
+
+         alert(
+  `🚀 Deployment complete! ${updatedRounds.length} round(s) deployed with ${totalContestants} contestant(s). Judges can now view all entries in judge.html`
+);
+
+    } catch (err) {
+      console.error(err);
+      alert(`❌ Deployment failed:\n${err.message}`);
+    }
+  });
+});
