@@ -29,32 +29,65 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // === Floating Toast Function ===
   function showToast(message, type = "error", duration = 3000) {
-    const container = document.getElementById("toastContainer");
-    const toast = document.createElement("div");
-    toast.classList.add("toast", type === "error" ? "toast-error" : "toast-success");
-    toast.textContent = message;
-    container.appendChild(toast);
+  const container = document.getElementById("toastContainer");
 
-    // Animate in
-    setTimeout(() => toast.classList.add("toast-show"), 50);
+  // Create toast element
+  const toast = document.createElement("div");
+  toast.classList.add("toast", type === "error" ? "toast-error" : "toast-success");
 
-    // Auto-hide after duration
-    setTimeout(() => {
-      toast.classList.remove("toast-show");
-      setTimeout(() => toast.remove(), 400);
-    }, duration);
-  }
+  // Add icon
+  const icon = document.createElement("span");
+  icon.classList.add("toast-icon");
+  icon.textContent = type === "error" ? "❌" : "✅";
+
+  // Add message
+  const text = document.createElement("span");
+  text.textContent = message;
+
+  toast.appendChild(icon);
+  toast.appendChild(text);
+  container.appendChild(toast);
+
+  // Animate in
+  setTimeout(() => toast.classList.add("toast-show"), 50);
+
+  // Auto-hide
+  setTimeout(() => {
+    toast.classList.remove("toast-show");
+    setTimeout(() => toast.remove(), 500);
+  }, duration);
+}
 
   // === SIGNUP LOGIC ===
   signupSubmit.addEventListener("click", () => {
     const username = document.getElementById("signupUsername").value.trim();
     const password = document.getElementById("signupPassword").value.trim();
 
+    // Check for empty fields
     if (!username || !password) {
       showToast("Please fill in all fields.", "error");
       return;
     }
 
+    // Check for spaces
+    if (/\s/.test(username) || /\s/.test(password)) {
+      showToast("Username and password cannot contain spaces.", "error");
+      return;
+    }
+
+    // Prevent username being exactly "admin" or "judge"
+    if (username === "admin" || username === "judge") {
+      showToast("Username cannot be just 'admin' or 'judge'.", "error");
+      return;
+    }
+
+    // Prevent username and password being the same
+    if (username === password) {
+      showToast("Username and password cannot be the same.", "error");
+      return;
+    }
+
+    // Determine role based on username containing "admin" or "judge"
     let role;
     if (username.includes("admin") && !username.includes("judge")) role = "admin";
     else if (username.includes("judge") && !username.includes("admin")) role = "judge";
@@ -86,6 +119,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!username || !password) {
       showToast("Please fill in all fields.", "error");
+      return;
+    }
+
+    // Optional: prevent exact "admin" or "judge" login attempts
+    if (username === "admin" || username === "judge") {
+      showToast("Invalid username.", "error");
       return;
     }
 
