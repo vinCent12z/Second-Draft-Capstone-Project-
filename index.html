@@ -6,6 +6,7 @@
   <title>Smart Judging & Scoring System</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="default.css">
+   <link rel="stylesheet" href="about.css">
 </head>
 
 <body class="bg-gradient-to-r from-sky-500 via-indigo-500 to-blue-700 min-h-screen flex flex-col items-center justify-center text-white">
@@ -16,9 +17,9 @@
       🏆 Smart Judging & Scoring System
     </h1>
     <ul class="nav__links flex gap-6 text-white font-medium" id="nav-links">
-      <li><a href="#" class="hover:underline">Home</a></li>
+      <li><a href="index.html" class="hover:underline">Home</a></li>
       <li><a href="about.html" class="hover:underline">About Us</a></li> 
-      <li><a href="#" class="hover:underline">Terms & Conditions</a></li>
+      <li><a href="termsConditions.html" class="hover:underline">Terms & Conditions</a></li>
     </ul>
     
     <div>
@@ -31,16 +32,6 @@
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <main class="flex flex-col items-center justify-center mt-20 text-center px-6">
-    <h2 class="text-4xl font-bold mb-4">Welcome to the Smart Judging & Scoring System.</h2>
-    <p class="text-lg text-blue-100 mb-8 max-w-xl">
-      Streamline your competitions with accuracy, transparency, and real-time results.
-    </p>
-    <button id="getStarted" type="button" class="bg-white text-blue-700 font-semibold px-6 py-3 rounded-full shadow-lg hover:scale-105 transition">
-      Get Started →
-    </button>
-  </main>
 
   <!-- LOGIN MODAL -->
   <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -74,6 +65,20 @@
 
   <!-- Floating Toast Message -->
   <div id="toastContainer" class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"></div>
+
+<!-- Hero Section -->
+<main class="flex flex-col items-center justify-center text-center px-6">
+  <!-- only this wrapper moves down -->
+  <div class="hero-content mt-12 md:mt-24 lg:mt-32 text-center">
+    <h2 class="text-4xl font-bold mb-4">
+      Welcome to the Smart Judging & Scoring System.
+    </h2>
+    <p class="text-lg text-blue-100 mb-8 max-w-xl mx-auto">
+      Streamline your competitions with accuracy, transparency, and real-time results.
+    </p>
+  </div>
+</main>
+
 
   <!-- new content from here to footer -->
   <section class="section__container offer__container" id="service">
@@ -123,22 +128,22 @@
     </p>
     <div class="team__grid">
       <div class="team__card">
-        <img src="cat2.jpg" alt="Team Member 1">
+        <img src="Allyza.jpg" alt="Team Member 1">
         <h4>Allyza Louise Guillermo</h4>
         <p>Project Manager & Developer</p>
       </div>
       <div class="team__card">
-        <img src="cat3.jpg" alt="Team Member 2">
+        <img src="Vincent.jpg" alt="Team Member 2">
         <h4>John Vincent Del Rosario</h4>
         <p>Full Stack Developer & Researcher</p>
       </div>
       <div class="team__card">
-        <img src="cats1.jpg" alt="Team Member 3">
+        <img src="Jaennie.jpg" alt="Team Member 3">
         <h4>Jaennie Ordoña</h4>
         <p>Lead Researcher & Developer</p>
       </div>
       <div class="team__card">
-        <img src="cat4.jpg" alt="Team Member 4">
+        <img src="Jerico.png" alt="Team Member 4">
         <h4>Jerico Maningas</h4>
         <p>Asst. Developer & Researcher</p>
       </div>
@@ -163,9 +168,9 @@
     <div class="footer__col">
       <h4>Links</h4>
       <ul class="footer__links">
-        <li><a href="#">Home</a></li>
+        <li><a href="index.html">Home</a></li>
         <li><a href="about.html">About Us</a></li>
-        <li><a href="#">Terms & Conditions</a></li>
+        <li><a href="termsConditions.html">Terms & Conditions</a></li>
       </ul>
     </div>
     
