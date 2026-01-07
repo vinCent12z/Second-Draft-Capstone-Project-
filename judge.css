@@ -248,6 +248,110 @@
   background-color: #d1d5db;
 }
 
+/* UDPATED CODE - Custom Scrollbar to match screenshot */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f9fafb;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 10px;
+}
+
+/* Modal States */
+#criteriaModal.flex {
+  display: flex;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Bullet Point Styling */
+.criteria-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+  color: #4b5563; /* slate-600 */
+  font-size: 0.95rem;
+}
+.criteria-item::before {
+  content: "•";
+  color: #4b5563;
+  font-weight: bold;
+  margin-right: 12px;
+}
+/* FORCE CENTERING BEHAVIOR */
+#criteriaModal:not(.hidden) {
+  display: block !important; /* The outer container displays */
+}
+
+/* Ensure the wrapper inside centers the card */
+#criteriaModal > div {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* REMOVE ALL BULLETS & PADDING */
+#criteriaContent ul {
+  list-style: none !important;
+  list-style-type: none !important;
+  padding-left: 0 !important;
+  margin: 0 !important;
+}
+
+#criteriaContent li {
+  list-style: none !important;
+  padding-left: 0 !important;
+  margin-bottom: 10px;
+  color: #4b5563; /* slate-600 */
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Matching the Header Style */
+#criteriaContent h3 {
+  color: #4f46e5;
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+  margin-top: 20px;
+}
+/* Limit the overall width so it matches Admin proportions */
+main {
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+/* Ensure Round boxes don't grow too tall or wide */
+.round-wrapper {
+    width: 100%;
+    max-width: 800px; /* Constrains the table side */
+    border: 2px solid #6366f1;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    background: white;
+}
+
+/* Constrain the Right Side Image Gallery */
+#processImageGallery {
+    width: 100%;
+    max-width: 450px; /* Constrains the image side */
+}
+
+/* Small thumbnails like Admin */
+.contestant-card img {
+    width: 100px !important;
+    height: 100px !important;
+    border-radius: 8px;
+}
+
 /* ======= QUESTION MARK CRITERIA (JUDGE DASHBOARD) ======= */
 .criteria-title {
   font-weight: 700;
@@ -338,17 +442,17 @@
   font-weight: 800;
 }
 
-@keyframes shake {
-  0% { transform: translateX(0); }
+@keyframes shake-interval {
+  0%, 15%, 85%, 100% { transform: translateX(0); }
   25% { transform: translateX(-4px); }
   50% { transform: translateX(4px); }
   75% { transform: translateX(-4px); }
-  100% { transform: translateX(0); }
 }
 
 .score-total.shake {
-  animation: shake 0.5s;
+  animation: shake-interval 1s infinite; /* 🔹 1s interval for breathing effect */
 }
+
 
 .over-limit-cell,
 .blank-cell {
