@@ -258,25 +258,48 @@ if (editBtn) {
     });
   }
 
-  function addCriteriaPair(title="", sublist=""){
-    const pairDiv = document.createElement('div');
-    pairDiv.className='criteria-pair';
-    const titleTA = document.createElement('textarea');
-    titleTA.placeholder="Main Criteria Title";
-    titleTA.dataset.type='title';
-    titleTA.value=title;
-    setupTextareaResize(titleTA);
-    const subTA = document.createElement('textarea');
-    subTA.placeholder="Sublist (one per line)";
-    subTA.dataset.type='sublist';
-    subTA.value=sublist;
-    setupTextareaResize(subTA);
-    pairDiv.appendChild(titleTA);
-    pairDiv.appendChild(subTA);
-    const container = document.getElementById('criteriaButtons');
-    criteriaEditForm.insertBefore(pairDiv, container);
-    criteriaEditForm.scrollTop=criteriaEditForm.scrollHeight;
+// UPDATED CODE FOR CRITERIA FOR JUDGING //
+ function addCriteriaPair(title = "", sublist = "") {
+  const pairDiv = document.createElement('div');
+  pairDiv.className = 'criteria-pair';
+  
+  // CRITICAL: Force block-level display to prevent side-by-side
+  pairDiv.style.display = 'flex';
+  pairDiv.style.flexDirection = 'column';
+  pairDiv.style.width = '100%';
+  pairDiv.style.maxWidth = '100%';
+  pairDiv.style.marginBottom = '1.25rem';
+  pairDiv.style.float = 'none';  // Prevent floating
+  pairDiv.style.clear = 'both';  // Clear any floats
+  
+  const titleTA = document.createElement('textarea');
+  titleTA.placeholder = "Main Criteria Title (e.g., Beauty 40%)";
+  titleTA.dataset.type = 'title';
+  titleTA.value = title;
+  titleTA.style.width = '100%';
+  titleTA.style.boxSizing = 'border-box';
+  setupTextareaResize(titleTA);
+
+  const subTA = document.createElement('textarea');
+  subTA.placeholder = "Sublist items (one per line)";
+  subTA.dataset.type = 'sublist';
+  subTA.value = sublist;
+  subTA.style.width = '100%';
+  subTA.style.boxSizing = 'border-box';
+  setupTextareaResize(subTA);
+
+  pairDiv.appendChild(titleTA);
+  pairDiv.appendChild(subTA);
+
+  const container = document.getElementById('criteriaButtons');
+  if (container) {
+      criteriaEditForm.insertBefore(pairDiv, container);
+  } else {
+      criteriaEditForm.appendChild(pairDiv);
   }
+  
+  criteriaEditForm.scrollTop = criteriaEditForm.scrollHeight;
+}
 
   addCriteriaBtn.onclick = () => addCriteriaPair();
   removeCriteriaBtn.onclick = () => {
@@ -355,12 +378,16 @@ if (editBtn) {
     }
   }
 }
-
+// UPDATED CODE IN JUDGE CRITERIA REMOVE ROUNDS
 // =======================
 // HELP MODAL
 // =======================
-helpIcon.addEventListener('click', ()=> helpModal.classList.add('show'));
-closeHelp.addEventListener('click', ()=> helpModal.classList.remove('show'));
+helpIcon.addEventListener('click', () => {
+  const modalTitle = helpModal.querySelector('h3');
+  if (modalTitle) modalTitle.textContent = 'Criteria for Judging'; 
+  helpModal.classList.add('show');
+});
+closeHelp.addEventListener('click', () => helpModal.classList.remove('show'));
 
 // =======================
 // CUSTOMIZE MODAL & IMAGE LOGIC
@@ -560,22 +587,27 @@ function cloneTableWithFixedStyle(sourceTable) {
   return clone;
 }
 
-// =======================
-// ROUNDS CONTAINER HELPERS
-// =======================
 function ensureRoundsContainer() {
   let roundsContainer = document.getElementById('roundsContainer');
   if (!roundsContainer) {
     roundsContainer = document.createElement('div');
     roundsContainer.id = 'roundsContainer';
-    roundsContainer.className = 'flex flex-col gap-8 mt-6';
+
+    // Flex column with gap
+    roundsContainer.style.display = 'flex';
+    roundsContainer.style.flexDirection = 'column';
+    roundsContainer.style.gap = '2rem'; // primary spacing
+    roundsContainer.style.marginTop = '1.5rem';
+    roundsContainer.style.width = '100%'; // make sure it stretches
+
     processForm.appendChild(roundsContainer);
   }
   return roundsContainer;
 }
 
+// UPDATED 
 // =======================
-// CREATE ROUND WRAPPER
+// CREATE ROUND WRAPPER (FIXED)
 // =======================
 function createRoundWrapperAndMoveJudgeCards(roundNumber, judgeCards) {
   const roundsContainer = ensureRoundsContainer();
@@ -586,8 +618,12 @@ function createRoundWrapperAndMoveJudgeCards(roundNumber, judgeCards) {
 
   const headerRow = document.createElement('div');
   headerRow.className = 'flex items-center justify-between mb-4';
+  
   const roundTitle = document.createElement('h1');
-  roundTitle.textContent = `ROUND ${roundNumber}`;
+  
+  // ✅ KEEP "ROUND X" for admin view
+  roundTitle.textContent = `ROUND ${roundNumber}`; 
+  
   roundTitle.className = 'text-2xl font-bold text-indigo-600';
   headerRow.appendChild(roundTitle);
 
@@ -933,40 +969,32 @@ confirmFinalize.addEventListener('click', () => {
     updateTable();
     lockMainTableLayout();
   }
+// Hide default main table and controls
+if (baseTable) baseTable.style.display = 'none';
+const mainCustomizeBtn = document.getElementById('customizeBtn');
+if (mainCustomizeBtn) mainCustomizeBtn.style.display = 'none';
+if (eventNameDisplay) eventNameDisplay.style.display = 'none';
+if (editBtn) editBtn.style.display = 'none';
 
-  // Hide default main table and controls
-  if (baseTable) baseTable.style.display = 'none';
-  const mainCustomizeBtn = document.getElementById('customizeBtn');
-  if (mainCustomizeBtn) mainCustomizeBtn.style.display = 'none';
-  if (eventNameDisplay) eventNameDisplay.style.display = 'none';
-  if (editBtn) editBtn.style.display = 'none';
-
-  // Save round record with full criteria breakdown
+// Save round record with full criteria breakdown
 rounds.push({
   roundNumber: currentRound.roundNumber,
   judges: judgeNames,
   criteriaCount,
   totalContestants,
   savedImages: { ...roundImages },
-  
   criteria: Array.from(criteriaList.querySelectorAll('.criteria-title')).map(titleEl => {
-  const block = titleEl.closest('.criteria-block') || titleEl.parentElement;
-  const items = Array.from(block.querySelectorAll('li')).map(li =>
-    li.textContent.trim()
-  );
-
-  return {
-    name: titleEl.textContent.trim(),
-    maxPoints: '',
-    items
-  };
-})
-
+    const block = titleEl.closest('.criteria-block') || titleEl.parentElement;
+    const items = Array.from(block.querySelectorAll('li')).map(li => li.textContent.trim());
+    return {
+      name: titleEl.textContent.trim(),
+      maxPoints: '',
+      items
+    };
+  })
 });
 
-
-
-  closeFinalizationModal();
+closeFinalizationModal();
 alert(`✅ Tabulation finalized successfully! Total Judges: ${window.totalJudges}`);
 
 isFirstRoundFinalized = true;
@@ -978,7 +1006,177 @@ helpModal.classList.remove('show');
 helpModal.classList.add('hidden');
 helpModal.style.display = 'none';   // 🔒 force hide
 if (helpIcon) helpIcon.style.display = 'none';
+
+// ✅ Render scoreboard per round
+renderScoreboard();
 });
+
+// =======================
+// HELPER: Compute contestant percentage
+// =======================
+function computePercentage(contestantTotals = {}, totalJudges = 1) {
+  const sumAllJudges = Object.values(contestantTotals)
+    .reduce((acc, v) => acc + (parseInt(v, 10) || 0), 0);
+  return totalJudges > 0 ? (sumAllJudges / (totalJudges * 100)) * 100 : 0;
+}
+
+const DEBUG = false;
+
+function getNumJudgesForRound(roundNumber) {
+  const roundMeta = Array.isArray(window.rounds)
+    ? window.rounds.find(r => Number(r.roundNumber) === Number(roundNumber))
+    : null;
+  return roundMeta && Number(roundMeta.totalJudges) > 0
+    ? Number(roundMeta.totalJudges)
+    : 1;
+}
+
+/** Ensure percent element exists */
+function ensurePercentElement(roundNumber, contestantId) {
+  const section = document.querySelector(`.round-gallery-section[data-round="${roundNumber}"]`);
+  if (!section) return null;
+
+  const card = section.querySelector(`.scoreboard-card[data-contestant="${contestantId}"]`);
+  if (!card) return null;
+
+  let percent = card.querySelector('.percent');
+  if (!percent) {
+    percent = document.createElement('p');
+    percent.className = 'percent';
+    percent.textContent = '0.00%';
+    card.appendChild(percent);
+  }
+  return percent;
+}
+
+/** Update ONE contestant */
+function updateContestantPercent(roundNumber, contestantId) {
+  const totalsKey = `judgeTotals_round_${roundNumber}`;
+  let totalsData = {};
+
+  try {
+    totalsData = JSON.parse(localStorage.getItem(totalsKey) || '{}');
+  } catch {}
+
+  const contestantTotals = totalsData[String(contestantId)] || {};
+  const numJudges = getNumJudgesForRound(roundNumber);
+  const percentage = computePercentage(contestantTotals, numJudges);
+
+  if (DEBUG) console.log('Update', roundNumber, contestantId, percentage);
+
+  const el = ensurePercentElement(roundNumber, contestantId);
+  if (el) el.textContent = percentage.toFixed(2) + '%';
+}
+
+/** Update ALL contestants of ONE round */
+function refreshRound(roundNumber) {
+  const section = document.querySelector(`.round-gallery-section[data-round="${roundNumber}"]`);
+  if (!section) return;
+
+  section.querySelectorAll('.scoreboard-card[data-contestant]')
+    .forEach(card => {
+      updateContestantPercent(roundNumber, card.dataset.contestant);
+    });
+}
+
+/** Initial render */
+function renderScoreboard() {
+  const scoreboardPage = document.getElementById('scoreboard');
+  if (!scoreboardPage || !Array.isArray(rounds)) return;
+
+  scoreboardPage.innerHTML = '';
+
+  rounds.forEach(round => {
+    const roundNumber = Number(round.roundNumber);
+
+    const section = document.createElement('div');
+    section.className = 'round-gallery-section';
+    section.dataset.round = roundNumber;
+
+// ✅ Add vertical spacing between rounds
+    section.style.marginBottom = '3rem'; // 48px spacing
+
+    const title = document.createElement('h3');
+    title.textContent = `ROUND ${roundNumber} Scoreboard`;
+    title.className = 'text-xl font-bold mb-4';
+
+    const grid = document.createElement('div');
+    grid.className = 'grid gap-6';
+    grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(180px, 1fr))';
+
+    const totalsKey = `judgeTotals_round_${roundNumber}`;
+    let totalsData = {};
+
+    try {
+      totalsData = JSON.parse(localStorage.getItem(totalsKey) || '{}');
+    } catch {}
+
+    const numJudges = getNumJudgesForRound(roundNumber);
+
+    for (let i = 1; i <= round.totalContestants; i++) {
+      const contestantId = String(i);
+
+      const card = document.createElement('div');
+      card.className = 'scoreboard-card';
+      card.dataset.round = roundNumber;
+      card.dataset.contestant = contestantId;
+
+      const img = document.createElement('img');
+      img.src = 'Anonymous photo.jpg';
+      img.className = 'w-full rounded mb-2';
+
+      const percent = document.createElement('p');
+      percent.className = 'percent font-bold text-lg';
+
+      const percentage = computePercentage(
+        totalsData[contestantId] || {},
+        numJudges
+      );
+
+      percent.textContent = percentage.toFixed(2) + '%';
+
+      card.appendChild(img);
+      card.appendChild(percent);
+      grid.appendChild(card);
+    }
+
+    section.appendChild(title);
+    section.appendChild(grid);
+    scoreboardPage.appendChild(section);
+  });
+}
+
+/* =========================
+   REALTIME UPDATES (FIXED)
+========================= */
+
+// Cross-tab
+window.addEventListener('storage', e => {
+  if (!e.key) return;
+  const m = e.key.match(/^judgeTotals_round_(\d+)$/);
+  if (!m) return;
+  refreshRound(Number(m[1]));
+});
+
+// BroadcastChannel
+try {
+  const bc = new BroadcastChannel('judge-totals');
+  bc.onmessage = msg => {
+    const data = msg.data || {};
+    if (!data.roundNumber) return;
+    refreshRound(data.roundNumber);
+  };
+} catch {}
+
+// Same-tab custom event
+window.addEventListener('judgeTotalsUpdate', e => {
+  const { roundNumber } = e.detail || {};
+  if (!roundNumber) return;
+  refreshRound(roundNumber);
+});
+
+// 🔥 REQUIRED INITIAL RENDER
+document.addEventListener('DOMContentLoaded', renderScoreboard);
 
 // =======================
 // ADMIN DROPDOWN & LOGOUT (SYNCED FROM LOGIN)
@@ -1055,105 +1253,106 @@ manualAddRoundBtn.addEventListener('click', () => {
   setTimeout(() => addRoundModal.classList.add('show'), 10);
 });
 
-// =======================
-// ADD ROUND MODAL BUTTONS (updated)
-// =======================
-addRoundYes.addEventListener('click', () => {
-  // Close modal
-  addRoundModal.classList.remove('show');
-  setTimeout(() => addRoundModal.classList.add('hidden'), 300);
+  // =======================
+  // ADD ROUND MODAL BUTTONS (updated)
+  // =======================
+  addRoundYes.addEventListener('click', () => {
+    // Close modal
+    addRoundModal.classList.remove('show');
+    setTimeout(() => addRoundModal.classList.add('hidden'), 300);
 
-  // Advance round and reset only ephemeral state for the new round
-  currentRound.roundNumber++;
-  tempImages = {};        // new uploads for this round
-  savedImages = {};       // working saved images for this round
+    // Advance round and reset only ephemeral state for the new round
+    currentRound.roundNumber++;
+    tempImages = {};        // new uploads for this round
+    savedImages = {};       // working saved images for this round
 
-  // Rebuild main table body for the new round (keeps column structure)
-  const mainTableBody = document.getElementById('tableBody');
-  if (mainTableBody) mainTableBody.innerHTML = '';
+    // Rebuild main table body for the new round (keeps column structure)
+    const mainTableBody = document.getElementById('tableBody');
+    if (mainTableBody) mainTableBody.innerHTML = '';
 
-  const criteriaCount = criteriaList.querySelectorAll('.criteria-title').length;
-  const totalContestantsInput = document.getElementById('customContestantNumber');
-  const totalContestants = parseInt(totalContestantsInput.value, 10) || 0;
+    const criteriaCount = criteriaList.querySelectorAll('.criteria-title').length;
+    const totalContestantsInput = document.getElementById('customContestantNumber');
+    const totalContestants = parseInt(totalContestantsInput.value, 10) || 0;
 
-  for (let i = 1; i <= totalContestants; i++) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${i}</td>`;
-    for (let j = 0; j < criteriaCount; j++) {
-      const td = document.createElement('td');
-      td.textContent = '';
-      td.style.textAlign = 'center';
-      td.style.height = '1.4rem';
-      tr.appendChild(td);
+    for (let i = 1; i <= totalContestants; i++) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${i}</td>`;
+      for (let j = 0; j < criteriaCount; j++) {
+        const td = document.createElement('td');
+        td.textContent = '';
+        td.style.textAlign = 'center';
+        td.style.height = '1.4rem';
+        tr.appendChild(td);
+      }
+      mainTableBody.appendChild(tr);
     }
-    mainTableBody.appendChild(tr);
-  }
 
-  // Keep main table and admin controls hidden while preparing the new round
-  const mainTableElement = document.getElementById('contestantTable');
-  const mainCustomizeBtn = document.getElementById('customizeBtn');
-  const eventNameDisplay = document.getElementById('eventNameDisplay');
-  if (mainTableElement) mainTableElement.style.display = 'none';
-  if (mainCustomizeBtn) mainCustomizeBtn.style.display = 'none';
-  if (eventNameDisplay) eventNameDisplay.style.display = 'none';
+    // Keep main table and admin controls hidden while preparing the new round
+    const mainTableElement = document.getElementById('contestantTable');
+    const mainCustomizeBtn = document.getElementById('customizeBtn');
+    const eventNameDisplay = document.getElementById('eventNameDisplay');
+    if (mainTableElement) mainTableElement.style.display = 'none';
+    if (mainCustomizeBtn) mainCustomizeBtn.style.display = 'none';
+    if (eventNameDisplay) eventNameDisplay.style.display = 'none';
 
-  // Ensure process container layout is visible and ready
-  processContainer.style.display = 'flex';
-  processContainer.style.flexDirection = 'row';
+    // Ensure process container layout is visible and ready
+    processContainer.style.display = 'flex';
+    processContainer.style.flexDirection = 'row';
 
-  // Clear customize inputs for the new round
-  const customEventEl = document.getElementById('customEventName');
-  const customContestantEl = document.getElementById('customContestantNumber');
-  const customJudgeEl = document.getElementById('customJudgeNumber');
-  if (customEventEl) customEventEl.value = '';
-  if (customContestantEl) customContestantEl.value = '';
-  if (customJudgeEl) customJudgeEl.value = '';
+    // Clear customize inputs for the new round
+    const customEventEl = document.getElementById('customEventName');
+    const customContestantEl = document.getElementById('customContestantNumber');
+    const customJudgeEl = document.getElementById('customJudgeNumber');
+    if (customEventEl) customEventEl.value = '';
+    if (customContestantEl) customContestantEl.value = '';
+    if (customJudgeEl) customJudgeEl.value = '';
 
-  // Show process page and open the help/modal to review criteria
-  showPage('processContainer');
+    // Show process page and open the help/modal to review criteria
+    showPage('processContainer');
 
-  if (helpModal) {
-    helpModal.classList.remove('hidden');
-    setTimeout(() => helpModal.classList.add('show'), 10);
-  }
+    if (helpModal) {
+      helpModal.classList.remove('hidden');
+      setTimeout(() => helpModal.classList.add('show'), 10);
+    }
 
-  // Make Edit Criteria visible inside the help modal for quick edits
-  allowEditVisible = true;
-  const helpContent = document.querySelector('#helpModal .modal-content');
-  if (helpContent && editBtn) {
-    if (editBtn.parentElement !== helpContent) helpContent.appendChild(editBtn);
-    editBtn.style.display = 'inline-flex';
-    editBtn.classList.remove('hidden');
-    editBtn.style.margin = '1rem auto';
-    editBtn.style.justifyContent = 'center';
+    // Make Edit Criteria visible inside the help modal for quick edits
+    allowEditVisible = true;
+    const helpContent = document.querySelector('#helpModal .modal-content');
+    if (helpContent && editBtn) {
+      if (editBtn.parentElement !== helpContent) helpContent.appendChild(editBtn);
+      editBtn.style.display = 'inline-flex';
+      editBtn.classList.remove('hidden');
+      editBtn.style.margin = '1rem auto';
+      editBtn.style.justifyContent = 'center';
 
-    helpContent.style.display = 'flex';
-    helpContent.style.flexDirection = 'column';
-    helpContent.style.alignItems = 'center';
-  }
+      helpContent.style.display = 'flex';
+      helpContent.style.flexDirection = 'column';
+      helpContent.style.alignItems = 'center';
+    }
 
-  alert(`🆕 Starting Round ${currentRound.roundNumber} — review criteria first, then click Edit Criteria to modify.`);
-});
+    alert(`🆕 Starting Round ${currentRound.roundNumber} — review criteria first, then click Edit Criteria to modify.`);
+  });
 
-addRoundNo.addEventListener('click', () => {
-  addRoundModal.classList.remove('show');
-  addRoundModal.classList.add('hidden');
+  addRoundNo.addEventListener('click', () => {
+    addRoundModal.classList.remove('show');
+    addRoundModal.classList.add('hidden');
 
-  isFirstRoundFinalized = true;
-  alert(`✅ Round ${currentRound.roundNumber} finalized. No additional rounds will be added.`);
-  showPage('processContainer');
-});
+    isFirstRoundFinalized = true;
+    alert(`✅ Round ${currentRound.roundNumber} finalized. No additional rounds will be added.`);
+    showPage('processContainer');
+  });
 
-// =======================
-// INITIAL TABLE
-// =======================
-updateTable();
-adjustTableColumnWidths();
+  // =======================
+  // INITIAL TABLE
+  // =======================
+  updateTable();
+  adjustTableColumnWidths();
 
 
 // ======================= 
-// DEPLOY BUTTON (ROUND-SAFE + SUBMISSION PERSISTENCE) UPDATED VERSION! DEC 30
+// DEPLOY BUTTON (ROUND-CORRECT + ACTIVE ROUND CONTROL)
 // =======================
+
 document.addEventListener('DOMContentLoaded', () => {
   const deployBtn = document.getElementById('deployBtn');
   if (!deployBtn) return;
@@ -1161,17 +1360,15 @@ document.addEventListener('DOMContentLoaded', () => {
   deployBtn.addEventListener('click', async () => {
     const updatedRounds = Array.isArray(rounds) ? rounds : [];
     if (updatedRounds.length === 0) {
-      alert('ℹ️ No rounds to deploy. Please finalize at least one round first.');
+      alert('ℹ️ No rounds to deploy.');
       return;
     }
 
     try {
       // =========================
-      // 1️⃣ SANITIZE & REBUILD ROUNDS
+      // 1️⃣ SANITIZE ROUNDS
       // =========================
       for (const round of updatedRounds) {
-
-        // 🔴 Always rebuild criteria from DOM
         const titles = Array.from(
           document.querySelectorAll('#criteriaList .criteria-title')
         );
@@ -1191,9 +1388,7 @@ document.addEventListener('DOMContentLoaded', () => {
           };
         });
 
-        // =========================
         // IMAGE SANITIZATION
-        // =========================
         const sanitizedImages = {};
         const savedImages = round.savedImages || {};
 
@@ -1217,27 +1412,26 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // =========================
-      // 2️⃣ CLONE PROCESS HTML
+      // 2️⃣ SAVE PROCESS HTML
       // =========================
       const processContainerEl = document.getElementById('processContainer');
       if (processContainerEl) {
         const cloned = processContainerEl.cloneNode(true);
+        const currentUser = localStorage.getItem('currentUser') || '';
 
-        const helpIcons = cloned.querySelectorAll('.help-icon');
-        helpIcons.forEach(icon => {
-          if (!icon.dataset.round) {
-            icon.dataset.round = String(icon.closest('[data-round]')?.dataset.round || 1);
-          }
-          if (!icon.dataset.judge) {
-            icon.dataset.judge = '1';
-          }
+        cloned.querySelectorAll('.judge-table-container').forEach(table => {
+          if (!table.dataset.judge) table.dataset.judge = currentUser;
+        });
+
+        cloned.querySelectorAll('.help-icon').forEach(icon => {
+          if (!icon.dataset.judge) icon.dataset.judge = currentUser;
         });
 
         localStorage.setItem('processHTML', cloned.innerHTML.trim());
       }
 
       // =========================
-      // 3️⃣ DEPLOY META DATA
+      // 3️⃣ DEPLOY META (🔥 FIX HERE)
       // =========================
       const highestRoundNumber = Math.max(
         ...updatedRounds.map(r => Number(r.roundNumber) || 1)
@@ -1246,7 +1440,13 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('roundsData', JSON.stringify(updatedRounds));
       localStorage.setItem('adminRunning', 'true');
 
-      // 🔥 THIS IS THE KEY
+      // 🔥 SINGLE SOURCE OF TRUTH (CRITICAL)
+      localStorage.setItem(
+        'activeRound',
+        String(highestRoundNumber)
+      );
+
+      // (keep for reference/history)
       localStorage.setItem(
         'lastDeployedRoundNumber',
         String(highestRoundNumber)
@@ -1254,13 +1454,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       localStorage.setItem('lastDeployTime', Date.now().toString());
 
-      const totalContestants = updatedRounds.reduce((sum, r) => {
-        return sum + (r.totalContestants || Object.keys(r.savedImages || {}).length);
-      }, 0);
-
-         alert(
-  `🚀 Deployment complete! ${updatedRounds.length} round(s) deployed with ${totalContestants} contestant(s). Judges can now view all entries in judge.html`
-);
+      alert(
+        `🚀 Deployment complete! ACTIVE ROUND: ${highestRoundNumber}\nJudges will now submit to this round only.`
+      );
 
     } catch (err) {
       console.error(err);
@@ -1268,3 +1464,84 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+// UPDATED CODE 
+const criteriaBtn = document.getElementById("criteriaBtn");
+const criteriaModal = document.getElementById("criteriaModal");
+const closeCriteria = document.getElementById("closeCriteria");
+
+criteriaBtn.addEventListener("click", () => {
+  criteriaModal.classList.add("show");
+});
+
+closeCriteria.addEventListener("click", () => {
+  criteriaModal.classList.remove("show");
+});
+
+criteriaModal.addEventListener("click", (e) => {
+  if (e.target === criteriaModal) {
+    criteriaModal.classList.remove("show");
+  }
+});
+deployBtn.addEventListener('click', () => {
+    try {
+        const roundsContainer = document.getElementById('roundsContainer');
+        if (!roundsContainer) {
+            alert("Nothing to deploy!");
+            return;
+        }
+
+        // 1. Get the current layout
+        const fullContent = roundsContainer.innerHTML;
+
+        // 2. CRITICAL FIX: Clear the "Quota" before saving the new larger data
+        localStorage.removeItem('processHTML');
+        localStorage.removeItem('lastDeployTime');
+
+        // 3. Save the new state
+        localStorage.setItem('processHTML', fullContent);
+        localStorage.setItem('lastDeployTime', Date.now().toString());
+        localStorage.setItem('adminRunning', 'true');
+
+        alert("✅ Round Deployed! Space optimized for unlimited rounds.");
+    } catch (e) {
+        console.error("Deploy failed", e);
+        if (e.name === 'QuotaExceededError') {
+            alert("❌ Storage Full! Please clear the Judge page data or use smaller images.");
+        } else {
+            alert("❌ Error: " + e.message);
+        }
+    }
+});
+
+async function compressImage(base64Str, maxWidth = 400) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.src = base64Str;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const scale = maxWidth / img.width;
+      canvas.width = maxWidth;
+      canvas.height = img.height * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', 0.7)); // Compresses to 70% quality
+    };
+  });
+}
+// ... inside your fileInput.addEventListener('change' ...
+reader.onload = async ev => {
+    const rawImageData = ev.target.result;
+    
+    // COMPRESS BEFORE SAVING
+    const compressedData = await compressImage(rawImageData);
+
+    const alreadyUsed = Object.values(tempImages).includes(compressedData);
+    if (alreadyUsed) {
+        alert("❌ Photo already used.");
+        return;
+    }
+
+    tempImages[targetNum] = compressedData;
+    alert(`✅ Photo assigned to #${targetNum}.`);
+};
