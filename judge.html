@@ -48,13 +48,27 @@
   </main>
 
   <!-- Criteria Modal -->
-  <div id="criteriaModal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="modal-card bg-white rounded-lg shadow-lg p-6 max-w-lg w-full">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold">Criteria</h2>
-        <button id="closeCriteriaModal" class="text-gray-500 hover:text-gray-700">&times;</button>
+<div id="criteriaModal" class="fixed inset-0 z-[100] hidden bg-black/60 backdrop-blur-sm p-4">
+  
+  <div class="flex items-center justify-center min-h-full w-full">
+    
+    <div class="relative flex flex-col w-full max-w-lg bg-white shadow-2xl rounded-2xl max-h-[85vh] overflow-hidden">
+      
+      <button id="closeCriteriaModal" class="absolute top-4 right-6 text-indigo-500 hover:text-indigo-800 text-4xl font-light focus:outline-none z-50">
+        &times;
+      </button>
+
+      <div class="p-8 text-center bg-white border-b border-gray-50">
+        <h1 class="text-2xl font-bold text-indigo-600"></h1>
       </div>
-      <div id="criteriaContent" class="space-y-2">
+
+      <div id="criteriaContent" class="p-10 overflow-y-auto bg-white custom-scrollbar">
+        </div>
+    </div>
+  </div>
+</div>
+      
+     <div id="criteriaContent" class="space-y-2">
         <!-- Criteria will be injected here by judge.js -->
       </div>
     </div>
