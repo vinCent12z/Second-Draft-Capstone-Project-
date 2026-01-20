@@ -21,8 +21,7 @@ hover:text-blue-600 transition">Dashboard</a>
 hover:text-green-600 transition">Scoreboard</a> 
         <button id="processBtn" class="relative px-3 py-2 font-semibold text-gray-800 
 hover:text-yellow-500 transition">Process</button> 
-        <a href="#metrics" class="relative px-3 py-2 font-semibold text-gray-800 
-hover:text-purple-600 transition">Metrics</a> 
+        
  
         <!-- User Profile Icon --> 
         <div id="adminUserIconContainer" class="relative flex items-center gap-2 cursor-pointer 
@@ -39,21 +38,6 @@ text-gray-800 rounded-lg shadow-lg z-50">
             <div class="px-4 py-2 border-b text-sm text-gray-600"> 
               Role: <span id="dropdownAdminRole"></span> 
             </div> 
- 
-            <a href="#profile" class="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 
-text-gray-700"> 
-              <span></span> Account Information 
-            </a> 
-     
-            <a href="#settings" class="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 
-text-gray-700"> 
-              <span></span> Settings 
-            </a> 
-             
-            <a href="#help" class="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 
-text-gray-700 border-b"> 
-              <span></span> Help & Support 
-            </a> 
  
             <button id="logoutBtn" class="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600 
 font-semibold">Logout</button> 
@@ -77,11 +61,41 @@ hover:bg-gray-300">No</button>
     </div> 
   </div>
 
-  <!-- =========================== DASHBOARD =========================== -->
-  <div id="dashboard" class="page pt-24 max-w-7xl mx-auto px-6">
-    <h1 class="text-3xl font-bold mb-6">Welcome to the Smart Judging & Scoring System</h1>
-    <p class="text-gray-700">Easily manage events, contestants, and scoring in one place.</p>
+<!-- =========================== DASHBOARD =========================== -->
+<div id="dashboard" class="page pt-24 max-w-7xl mx-auto px-6">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">Welcome to the Smart Judging & Scoring System</h1>
+    <!-- Export Button (hidden until finalize) -->
+    <button id="exportBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700 hidden">
+      Export
+    </button>
   </div>
+  <p class="text-gray-700 mb-4">Easily manage events, contestants, and scoring in one place.</p>
+  <div id="monitorContainer" class="p-6"></div>
+</div>
+
+<!-- =========================== EXPORT MODAL =========================== -->
+<div id="exportModal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+    <h2 class="text-xl font-bold mb-4">Export Judge Tables</h2>
+
+    <!-- Round selection -->
+    <label for="exportRoundSelect" class="block mb-2 font-semibold">Select Round:</label>
+    <select id="exportRoundSelect" name="exportRoundSelect" class="border rounded p-2 w-full mb-4"></select>
+
+    <!-- Format selection -->
+    <label for="exportFormatSelect" class="block mb-2 font-semibold">File Format:</label>
+    <select id="exportFormatSelect" name="exportFormatSelect" class="border rounded p-2 w-full mb-4">
+      <option value="pdf">PDF</option>
+      <option value="docx">DOCX</option>
+    </select>
+
+    <div class="flex justify-end gap-3">
+      <button id="cancelExport" class="px-4 py-2 bg-gray-200 rounded">Cancel</button>
+      <button id="confirmExport" class="px-4 py-2 bg-indigo-600 text-white rounded">Download</button>
+    </div>
+  </div>
+</div>
 
   <!-- =========================== SCOREBOARD =========================== -->
   <div id="scoreboard" class="page pt-24 max-w-7xl mx-auto px-6 hidden">
@@ -232,14 +246,15 @@ hover:bg-gray-300">No</button>
     </div>
   </div>
 
-  <!-- =========================== METRICS =========================== -->
-  <div id="metrics" class="page pt-24 max-w-7xl mx-auto px-6 hidden">
-    <h1 class="text-3xl font-bold mb-6">Metrics</h1>
-    <p class="text-gray-700">Metrics content goes here.</p>
-  </div>
+<!-- PDF export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-  <!-- =========================== JAVASCRIPT =========================== -->
-  <script src="script.js"></script>
+<!-- DOCX export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/1.0.0/html-docx.min.js"></script>
+
+<!-- =========================== JAVASCRIPT =========================== -->
+<script src="script.js"></script>
 </body>
 </html>
 
