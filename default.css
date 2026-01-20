@@ -94,7 +94,7 @@
 } 
 
 .section__header span { 
-  color: #fbbf24; 
+  color: #ffff; 
 } 
 
 .section__description { 
@@ -136,7 +136,7 @@
 
 .offer__details div { 
   padding-left: 1rem; 
-  border-left: 2px solid #fbbf24; 
+  border-left: 2px solid #ffff; 
 } 
 
 .offer__details h4 { 
@@ -150,6 +150,114 @@
   color: rgba(255, 255, 255, 0.8); 
   line-height: 1.6; 
 } 
+
+/* Help */
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Alternative gradient options */
+.gradient-bg-1 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.gradient-bg-2 {
+  background: linear-gradient(135deg, #0093E9 0%, #80D0C7 100%);
+}
+
+.gradient-bg-3 {
+  background: linear-gradient(135deg, #8EC5FC 0%, #E0C3FC 100%);
+}
+
+/* Page Title Styling */
+.page-title {
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.page-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Card Hover Effects */
+.contact-card {
+  transition: all 0.3s ease;
+}
+
+.contact-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* FAQ Accordion Styling */
+details summary {
+  list-style: none;
+  cursor: pointer;
+
+  /* Cross-browser user-select support */
+  -webkit-user-select: none; /* Safari 3+, iOS Safari 3+ */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* IE10+ */
+  user-select: none;         /* Modern browsers */
+}
+
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+details[open] summary {
+  color: #3b82f6;
+}
+
+/* Icon Circle Animation */
+.icon-circle {
+  transition: all 0.3s ease;
+}
+
+.contact-card:hover .icon-circle {
+  transform: scale(1.1);
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* FAQ Answer Animation */
+details[open] p {
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
 
 /* Meet Our Team Section */ 
 .team { 
@@ -165,7 +273,7 @@
 } 
 
 .team__header span { 
-  color: #fbbf24; 
+  color: #ffff; 
 } 
 
 .team__description { 
@@ -269,7 +377,7 @@
 } 
 
 .footer__links a:hover { 
-  color: #fbbf24; 
+  color: #ffff; 
   padding-left: 5px; 
 } 
 
@@ -307,5 +415,40 @@
   } 
 } 
 
+/* Eye Design */ 
+.input-field + span {
+  font-size: 1.25rem;
+  color: #6b7280; /* Tailwind gray-500 */
+}
 
+/* Visual style for toast message */ 
+.modal-message {
+  display: none;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
+  z-index: 60;
+}
+
+/* types */
+.modal-message--error {
+  color: #7f1d1d;
+  background: #fff1f2;
+  border-color: #fecaca;
+}
+.modal-message--success {
+  color: #14532d;
+  background: #ecfdf5;
+  border-color: #bbf7d0;
+}
+.modal-message--info {
+  color: #1f2937;
+  background: #f8fafc;
+  border-color: #e6eef6;
+}
+
+/* visible helper */
+.modal-message--visible { display: block; }
 
