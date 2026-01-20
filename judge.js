@@ -14,7 +14,7 @@ if (!loggedInUser || loggedInRole !== 'judge') {
 // =======================
 document.addEventListener('DOMContentLoaded', () => {
   const judgeContainer = document.getElementById('judgeContainer');
-  if (!judgeContainer) return console.error('❌ judgeContainer element not found in DOM');
+  if (!judgeContainer) return console.error(' judgeContainer element not found in DOM');
 
   let lastRenderedDeployTime = null;
 
@@ -178,13 +178,35 @@ const ACTIVE_ROUND = Number(localStorage.getItem('activeRound')) || 1;
 judgeTables.forEach((tbody, tableIndex) => {
   const rows = tbody.querySelectorAll('tr');
 
-  // ❌ DO NOT trust DOM round
-  const roundNumber = ACTIVE_ROUND;
+  //  DO NOT trust DOM round
+  const parentCard = tbody.closest('.judge-table-container');
+  const roundNumber = Number(parentCard?.dataset.round) || ACTIVE_ROUND;
 
-  const scoresKey = getScoresKey(roundNumber, tableIndex);
-  const savedScores = JSON.parse(localStorage.getItem(scoresKey) || '{}');
+  // ✅ Build both key types: table-based (legacy) and judgeName-based (stable)
+  const currentUser = localStorage.getItem('currentUser') || '';
+  const judgeNameRaw = (parentCard?.dataset?.judgeName || '').trim() || currentUser;
 
-  const judgeId = `judge_${tableIndex}`;
+  const sanitizeJudgeName = (name) =>
+    String(name || '')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '_')
+      .replace(/[^a-z0-9_]/g, '');
+
+  const judgeKeyName = sanitizeJudgeName(judgeNameRaw);
+
+  // Legacy table-index key (keeps round 1 working)
+  const tableScoresKey = getScoresKey(roundNumber, tableIndex);
+  let savedScores = {};
+  try { savedScores = JSON.parse(localStorage.getItem(tableScoresKey) || '{}'); } catch {}
+
+  // New judgeName-based key (stable for round 2+)
+  const nameScoresKey = `scores_round_${roundNumber}_judge_${judgeKeyName}`;
+  let savedScoresByName = {};
+  try { savedScoresByName = JSON.parse(localStorage.getItem(nameScoresKey) || '{}'); } catch {}
+
+  // Totals judgeId — prefer name-based if available
+  const judgeId = judgeKeyName || `judge_${tableIndex}`;
 
   const debounce = (fn, wait = 120) => {
     let t;
@@ -263,44 +285,51 @@ judgeTables.forEach((tbody, tableIndex) => {
 
     const persistTotalsDebounced = debounce(persistTotals, 100);
 
-   function updateTotal() {
-  const sum = scoreInputs.reduce(
-    (acc, inp) => acc + (parseInt(inp.value, 10) || 0),
-    0
-  );
+    function updateTotal() {
+      const sum = scoreInputs.reduce(
+        (acc, inp) => acc + (parseInt(inp.value, 10) || 0),
+        0
+      );
 
-  const capped = Math.min(sum, 100);
-  totalDisplay.textContent = `= ${capped}pts`;
+      const capped = Math.min(sum, 100);
+      totalDisplay.textContent = `= ${capped}pts`;
 
-  // reset visual states
-  totalDisplay.classList.remove('over-limit', 'shake');
-  scoreInputs.forEach(inp => inp.classList.remove('over-limit-cell'));
+      // reset visual states
+      totalDisplay.classList.remove('over-limit', 'shake');
+      scoreInputs.forEach(inp => inp.classList.remove('over-limit-cell'));
 
-  if (sum > 100) {
-    // 🔴 mark total and cells as over limit
-    totalDisplay.classList.add('over-limit', 'shake'); // shake continuously
-    scoreInputs.forEach(inp => inp.classList.add('over-limit-cell'));
-  }
+      if (sum > 100) {
+        //  mark total and cells as over limit
+        totalDisplay.classList.add('over-limit', 'shake'); // shake continuously
+        scoreInputs.forEach(inp => inp.classList.add('over-limit-cell'));
+      }
 
-  // save scores
-  savedScores[rowIndex] = scoreInputs.map(i => parseInt(i.value, 10) || 0);
-  localStorage.setItem(scoresKey, JSON.stringify(savedScores));
+      // prepare row scores
+      const rowScores = scoreInputs.map(i => parseInt(i.value, 10) || 0);
 
-  // debounce totals broadcast
-  persistTotalsDebounced(sum);
-}
+      //  dual-write: legacy table-index key (round 1) + judgeName-based key (round 2+)
+      savedScores[rowIndex] = rowScores;
+      localStorage.setItem(tableScoresKey, JSON.stringify(savedScores));
 
-// 🔹 input listener
-scoreInputs.forEach(inp => {
-  inp.addEventListener('input', () => {
-    inp.value = inp.value.replace(/[^0-9]/g, '');
+      savedScoresByName[rowIndex] = rowScores;
+      localStorage.setItem(nameScoresKey, JSON.stringify(savedScoresByName));
+
+      // debounce totals broadcast
+      persistTotalsDebounced(sum);
+    }
+
+    // 🔹 input listener
+    scoreInputs.forEach(inp => {
+      inp.addEventListener('input', () => {
+        inp.value = inp.value.replace(/[^0-9]/g, '');
+        updateTotal();
+      });
+    });
+
+    // Initial update
     updateTotal();
   });
-});
 
-    updateTotal();
-  });
-  
       // =======================
       // SUBMIT BUTTON + STATE
       // =======================
@@ -534,7 +563,7 @@ scoreInputs.forEach(inp => {
       criteriaContent.innerHTML = '';
 
       if (round && round.criteria) {
-        // ✅ HEADER WITHOUT ROUND NUMBER
+        //  HEADER WITHOUT ROUND NUMBER
         const modalHeader = document.createElement('h2');
         modalHeader.className = 'text-2xl font-bold text-indigo-600 mb-6 text-center';
         modalHeader.textContent = 'Criteria for Judging';
@@ -545,7 +574,7 @@ scoreInputs.forEach(inp => {
           const section = document.createElement('section');
           section.className = 'mb-6';
 
-          // ✅ TITLE WITHOUT MAX POINTS
+          //  TITLE WITHOUT MAX POINTS
           const title = document.createElement('h3');
           title.className = 'text-indigo-600 font-bold text-lg mb-2';
           title.textContent = c.name;
