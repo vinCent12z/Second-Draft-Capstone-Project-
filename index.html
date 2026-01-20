@@ -6,7 +6,6 @@
   <title>Smart Judging & Scoring System</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="default.css">
-   <link rel="stylesheet" href="about.css">
 </head>
 
 <body class="bg-gradient-to-r from-sky-500 via-indigo-500 to-blue-700 min-h-screen flex flex-col items-center justify-center text-white">
@@ -14,7 +13,7 @@
   <!-- Header -->
   <header class="absolute top-0 left-0 w-full py-4 px-8 bg-blue-600 shadow-md flex justify-between items-center">
     <h1 class="text-2xl font-bold tracking-wide flex items-center gap-2">
-      🏆 Smart Judging & Scoring System
+     Smart Judging & Scoring System
     </h1>
     <ul class="nav__links flex gap-6 text-white font-medium" id="nav-links">
       <li><a href="index.html" class="hover:underline">Home</a></li>
@@ -22,46 +21,166 @@
       <li><a href="termsConditions.html" class="hover:underline">Terms & Conditions</a></li>
     </ul>
     
-    <div>
-      <button id="loginBtn" type="button" class="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-100 transition">
-        Sign In
-      </button>
-      <button id="signupBtn" type="button" class="bg-yellow-400 text-blue-900 px-4 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition">
-        Sign Up
-      </button>
+    <!-- Sign In / Sign Up buttons -->
+<div>
+  <button id="loginBtn" type="button" class="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-100 transition">
+    Sign In
+  </button>
+  <button id="signupBtn" type="button" class="bg-yellow-400 text-blue-900 px-4 py-2 rounded-lg font-semibold hover:bg-yellow-300 transition">
+    Sign Up
+  </button>
+</div>
+</header>
+
+<!-- LOGIN MODAL -->
+<div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white text-gray-800 rounded-2xl shadow-lg w-96 p-8 relative animate-fadeIn">
+
+    <!-- Close X -->
+    <button id="closeLogin" type="button" class="absolute top-3 right-3 text-gray-500 hover:text-red-500 transition-colors" aria-label="Close login modal">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <h3 class="text-2xl font-bold mb-4 text-center text-blue-600">Login</h3>
+
+    <!-- Inline message (visible, high contrast) -->
+    <p id="loginMessage" class="hidden text-sm mb-4 rounded p-3 border border-red-200 text-red-700 bg-red-50" role="status" aria-live="polite" aria-hidden="true"></p>
+
+    <!-- Username Field -->
+    <input id="loginUsername" type="text" placeholder="Username" class="input-field mb-4">
+
+    <!-- Password field with eye icon -->
+    <div class="relative mb-3">
+      <input id="loginPassword" type="password" placeholder="Password *" class="input-field pr-10">
+      <svg id="toggleLoginPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+        class="absolute right-3 top-2.5 w-5 h-5 text-gray-500 cursor-pointer hover:text-blue-600 transition-colors" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12s-3.75 6.75-9.75 6.75S2.25 12 2.25 12z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
     </div>
-  </header>
+
+    <!-- Forgot Password -->
+    <div class="text-right mb-4">
+      <button id="forgotPassword" type="button" class="text-blue-600 text-sm font-semibold hover:underline">Forgot Password?</button>
+    </div>
+
+    <!-- Action Button -->
+    <button id="loginSubmit" type="button" class="modal-btn mb-3 bg-blue-600 text-white hover:bg-blue-700">Sign In</button>
 
 
-  <!-- LOGIN MODAL -->
-  <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white text-gray-800 rounded-2xl shadow-lg w-96 p-8 relative animate-fadeIn">
-      <h3 class="text-2xl font-bold mb-4 text-center text-blue-600">Login</h3>
-
-      <p id="loginMessage" class="text-sm mb-4 text-red-600 hidden"></p>
-
-      <input id="loginUsername" type="text" placeholder="Username" class="input-field mb-4">
-      <input id="loginPassword" type="password" placeholder="Password" class="input-field mb-6">
-
-      <button id="loginSubmit" type="button" class="modal-btn mb-3 bg-blue-600 text-white hover:bg-blue-700">Sign In</button>
-      <button id="closeLogin" type="button" class="modal-btn bg-gray-200 text-gray-700 hover:bg-gray-300">Cancel</button>
+    <!-- Sign Up Prompt -->
+    <div class="text-center text-sm text-gray-600">
+      <p>
+        Don’t have an account?
+        <button id="signupLink" type="button" class="text-blue-600 font-semibold hover:underline">Sign up</button>
+      </p>
     </div>
   </div>
+</div>
 
-  <!-- SIGNUP MODAL -->
-  <div id="signupModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white text-gray-800 rounded-2xl shadow-lg w-96 p-8 relative animate-fadeIn">
-      <h3 class="text-2xl font-bold mb-4 text-center text-blue-600">Create Account</h3>
+<!-- SIGNUP MODAL -->
+<div id="signupModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white text-gray-800 rounded-2xl shadow-lg w-96 p-8 relative animate-fadeIn">
 
-      <p id="signupMessage" class="text-sm mb-4 text-red-600 hidden"></p>
+    <!-- Close X -->
+    <button id="closeSignup" type="button" class="absolute top-3 right-3 text-gray-500 hover:text-red-500 transition-colors" aria-label="Close signup modal">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
 
-      <input id="signupUsername" type="text" placeholder="Username" class="input-field mb-4">
-      <input id="signupPassword" type="password" placeholder="Password" class="input-field mb-6">
+    <h3 class="text-2xl font-bold mb-4 text-center text-blue-600">Create Account</h3>
 
-      <button id="signupSubmit" type="button" class="modal-btn mb-3 bg-yellow-400 text-blue-900 hover:bg-yellow-300">Create Account</button>
-      <button id="closeSignup" type="button" class="modal-btn bg-gray-200 text-gray-700 hover:bg-gray-300">Cancel</button>
+    <!-- Inline message (visible, high contrast) -->
+    <p id="signupMessage" class="hidden text-sm mb-4 rounded p-3 border border-red-200 text-red-700 bg-red-50" role="status" aria-live="polite" aria-hidden="true"></p>
+
+    <!-- Username Field -->
+    <input id="signupUsername" type="text" placeholder="Username *" class="input-field mb-4">
+
+    <!-- Password Field -->
+    <div class="relative mb-4">
+      <input id="signupPassword" type="password" placeholder="Password *" class="input-field pr-10">
+      <svg id="toggleSignupPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+        class="absolute right-3 top-2.5 w-5 h-5 text-gray-500 cursor-pointer hover:text-blue-600 transition-colors" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12s-3.75 6.75-9.75 6.75S2.25 12 2.25 12z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    </div>
+
+    <!-- Confirm Password Field -->
+    <div class="relative mb-6">
+      <input id="signupConfirmPassword" type="password" placeholder="Confirm Password *" class="input-field pr-10">
+      <svg id="toggleConfirmPassword" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+        class="absolute right-3 top-2.5 w-5 h-5 text-gray-500 cursor-pointer hover:text-blue-600 transition-colors" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12s-3.75 6.75-9.75 6.75S2.25 12 2.25 12z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+    </div>
+
+    <!-- Action Button -->
+    <button id="signupSubmit" type="button" class="modal-btn mb-3 bg-yellow-400 text-blue-900 hover:bg-yellow-300">Sign Up</button>
+
+    <!-- Footer Section -->
+    <div class="mt-6 text-center text-sm text-gray-600">
+      <p class="mb-2">
+        Already have an account?
+        <button id="loginLink" class="text-blue-600 font-semibold hover:underline">Log in</button>
+      </p>
+
     </div>
   </div>
+</div>
+
+<!-- RECOVERY MODAL (Forgot Password) -->
+<input id="recoveryEmail" type="email" placeholder="Enter your Gmail *" class="input-field mb-4">
+  <div class="bg-white text-gray-800 rounded-2xl shadow-lg w-96 p-8 relative animate-fadeIn">
+    <button id="closeRecovery" type="button" class="absolute top-3 right-3 text-gray-500 hover:text-red-500 transition-colors" aria-label="Close recovery modal">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <h3 class="text-2xl font-bold mb-4 text-center text-green-600">Recover Password</h3>
+
+    <!-- Inline message -->
+    <p id="recoveryMessage" class="hidden text-sm mb-4 rounded p-3 border border-red-200 text-red-700 bg-red-50" role="status" aria-live="polite" aria-hidden="true"></p>
+
+    <p class="text-sm mb-4 text-gray-600 text-center">Enter your username to request recovery.</p>
+    <input id="recoveryUsername" type="text" placeholder="Username *" class="input-field mb-4">
+    <button id="recoverySubmit" type="button" class="modal-btn mb-3 bg-green-500 text-white hover:bg-green-600">Send Request</button>
+  </div>
+</div>
+
+<!-- RESET PASSWORD MODAL -->
+<div id="resetModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white text-gray-800 rounded-2xl shadow-lg w-96 p-8 relative animate-fadeIn">
+    <button id="closeReset" type="button" class="absolute top-3 right-3 text-gray-500 hover:text-red-500 transition-colors" aria-label="Close reset modal">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <h3 class="text-2xl font-bold mb-4 text-center text-blue-600">Reset Password</h3>
+
+    <!-- Inline message -->
+    <p id="resetMessage" class="hidden text-sm mb-4 rounded p-3 border border-red-200 text-red-700 bg-red-50" role="status" aria-live="polite" aria-hidden="true"></p>
+
+    <p class="text-sm mb-4 text-gray-600 text-center">Enter your new password below.</p>
+
+    <div class="relative mb-4">
+      <input id="resetPassword" type="password" placeholder="New Password *" class="input-field pr-10">
+    </div>
+
+    <div class="relative mb-6">
+      <input id="resetConfirmPassword" type="password" placeholder="Confirm New Password *" class="input-field pr-10">
+    </div>
+
+    <button id="resetSubmit" type="button" class="modal-btn mb-3 bg-blue-600 text-white hover:bg-blue-700">Update Password</button>
+  </div>
+</div>
+
 
   <!-- Floating Toast Message -->
   <div id="toastContainer" class="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"></div>
@@ -108,7 +227,7 @@
       </div>
     </div>
     <div class="offer__card">
-      <img src="judging.jpg" alt="offer" />
+      <img src="judging.png" alt="offer" />
       <div class="offer__details">
         <span>03</span>
         <div>
@@ -119,6 +238,67 @@
     </div>
   </div>
   </section>
+
+  <!-- FAQ Section -->
+      <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+        <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <i class="fas fa-question-circle text-blue-600" aria-hidden="true"></i>
+          Frequently Asked Questions
+        </h3>
+
+        <div class="space-y-4" role="list">
+          <!-- FAQ Item -->
+          <details class="group border-b pb-4" role="listitem">
+            <summary class="flex justify-between items-center cursor-pointer font-semibold text-gray-800 hover:text-blue-600">
+              How do I create a new event?
+              <i class="fas fa-chevron-down group-open:rotate-180 transition-transform" aria-hidden="true"></i>
+            </summary>
+            <p class="mt-3 text-gray-600 pl-4">
+             To set up a new event, navigate to the process page and select “Customize Tabulation Button.” Enter the required details such as the Event Name, number of contestants, number of judges, and upload a contestant photo. After that, add the judges’ names and contestants to get started.
+          </details>
+
+          <details class="group border-b pb-4" role="listitem">
+            <summary class="flex justify-between items-center cursor-pointer font-semibold text-gray-800 hover:text-blue-600">
+              How do judges submit their scores?
+              <i class="fas fa-chevron-down group-open:rotate-180 transition-transform" aria-hidden="true"></i>
+            </summary>
+            <p class="mt-3 text-gray-600 pl-4">
+             Judges sign in to their accounts, wait for the admin to deploy the event, and then access the list of contestants. They provide scores for each criterion, and the system instantly computes the overall totals in real time.
+            </p>
+          </details>
+
+          <details class="group border-b pb-4" role="listitem">
+            <summary class="flex justify-between items-center cursor-pointer font-semibold text-gray-800 hover:text-blue-600">
+             Can scores be edited after submission?
+              <i class="fas fa-chevron-down group-open:rotate-180 transition-transform" aria-hidden="true"></i>
+            </summary>
+            <p class="mt-3 text-gray-600 pl-4">
+            Once judges submit their scores for a contestant, they cannot make any changes. Therefore, ensure that all scores are finalized and accurate before submitting.
+            </p>
+          </details>
+
+          <details class="group border-b pb-4" role="listitem">
+            <summary class="flex justify-between items-center cursor-pointer font-semibold text-gray-800 hover:text-blue-600">
+             How do I add multiple judges?
+              <i class="fas fa-chevron-down group-open:rotate-180 transition-transform" aria-hidden="true"></i>
+            </summary>
+            <p class="mt-3 text-gray-600 pl-4">
+             Only admins have the ability to add judges. To do this, go to Customize Tabulation for customization, then enter the Event Name, Number of Contestants, and the Number of Judges. Judges themselves cannot add or change the number of judges.
+          </details>
+
+          <details class="group border-b pb-4" role="listitem">
+            <summary class="flex justify-between items-center cursor-pointer font-semibold text-gray-800 hover:text-blue-600">
+             Is the scoring system transparent?
+              <i class="fas fa-chevron-down group-open:rotate-180 transition-transform" aria-hidden="true"></i>
+            </summary>
+            <p class="mt-3 text-gray-600 pl-4">
+            Yes! The system displays scores in real time in the scoreboard page for all viewers. In addition, the admin dashboard generates clear, transparent tables showing each judge’s scores.
+            </p>
+          </details>
+    </div>
+  </div>
+</section>
+
 
   <!-- Meet Our Team Section -->
   <section class="section__container team" id="team">
@@ -157,7 +337,7 @@
     
     <div class="footer__col">
       <div class="footer__logo">
-        <h3 class="logo">🏆 Smart Judging</h3>
+        <h3 class="logo"> Smart Judging</h3>
       </div>
       <p>
         Our website is designed to help you streamline competitions with 
