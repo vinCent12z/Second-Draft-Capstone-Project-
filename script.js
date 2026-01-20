@@ -73,9 +73,9 @@ addCriteriaBtn.style.display = 'none';
 if (processImageGallery) processImageGallery.style.display = 'none';
 processContainer.classList.remove('active');
 
-let tempImages = {};   // ⚡ Only current round ephemeral images
-let savedImages = {};  // ⚡ Current round finalized images
-let rounds = [];       // 🏆 Array of finalized rounds
+let tempImages = {};   //  Only current round ephemeral images
+let savedImages = {};  //  Current round finalized images
+let rounds = [];       //  Array of finalized rounds
 
 let lastContestantCount = null;
 
@@ -86,7 +86,7 @@ contestantNumberInput.addEventListener('change', () => {
   const newCount = parseInt(contestantNumberInput.value, 10);
   if (!newCount || newCount <= 0 || newCount === lastContestantCount) return;
 
-  // ⚡ Reset only current round ephemeral images
+  //  Reset only current round ephemeral images
   tempImages = {};
 
   // Clear only the current round gallery section (if exists)
@@ -424,10 +424,10 @@ saveCustomize.addEventListener('click', ()=>{
   if(!eventName) missing.push("Event Name");
   if(!contestantNum||contestantNum<=0) missing.push("Number of Contestants");
   if(!judgeNum||judgeNum<=0) missing.push("Number of Judges");
-  if(missing.length>0){ alert(`⚠️ Please fill: ${missing.join(", ")}`); return; }
+  if(missing.length>0){ alert(` Please fill: ${missing.join(", ")}`); return; }
 
   const totalImages = Object.keys(tempImages).length;
-  if(totalImages !== contestantNum){ alert(`⚠️ Assign exactly ${contestantNum} images. Currently: ${totalImages}`); return; }
+  if(totalImages !== contestantNum){ alert(` Assign exactly ${contestantNum} images. Currently: ${totalImages}`); return; }
 
   window.totalJudges = judgeNum;
 
@@ -497,16 +497,16 @@ insertPhotoBtn.addEventListener('click', () => {
     reader.onload = ev => {
       const imageData = ev.target.result;
 
-      // 🔒 DUPLICATE CHECK — CURRENT ROUND ONLY
+      //  DUPLICATE CHECK — CURRENT ROUND ONLY
       const alreadyUsed = Object.values(tempImages).includes(imageData);
 if (alreadyUsed) {
-  alert("❌ This photo is already used in the current round. Please choose a different image.");
+  alert(" This photo is already used in the current round. Please choose a different image.");
   return;
 }
 
 
       tempImages[targetNum] = imageData;
-      alert(`✅ Photo assigned to Contestant #${targetNum}. Click 'Save' to confirm.`);
+      alert(` Photo assigned to Contestant #${targetNum}. Click 'Save' to confirm.`);
     };
 
     reader.readAsDataURL(file);
@@ -621,7 +621,7 @@ function createRoundWrapperAndMoveJudgeCards(roundNumber, judgeCards) {
   
   const roundTitle = document.createElement('h1');
   
-  // ✅ KEEP "ROUND X" for admin view
+  //  KEEP "ROUND X" for admin view
   roundTitle.textContent = `ROUND ${roundNumber}`; 
   
   roundTitle.className = 'text-2xl font-bold text-indigo-600';
@@ -717,7 +717,7 @@ confirmFinalize.addEventListener('click', () => {
   });
 
   if (!allValid) {
-    alert('⚠️ Please fill in all judge names before finalizing.');
+    alert(' Please fill in all judge names before finalizing.');
     return;
   }
 
@@ -758,6 +758,7 @@ confirmFinalize.addEventListener('click', () => {
     const card = document.createElement('div');
     card.className = 'bg-white rounded-lg shadow p-4 judge-table-container';
     card.dataset.judge = index + 1;
+    card.dataset.round = String(roundNumber); //  critical
     card.style.width = '100%';
     card.style.boxSizing = 'border-box';
     card.style.position = 'relative';
@@ -837,7 +838,7 @@ confirmFinalize.addEventListener('click', () => {
     judgeFooter.appendChild(judgeNumberLine);
     card.appendChild(judgeFooter);
 
-    // 🔵 Add help icon per judge card, bound to round/judge
+    //  Add help icon per judge card, bound to round/judge
     const judgeHelpIcon = document.createElement('button');
     judgeHelpIcon.className = 'help-icon absolute top-2 right-2 bg-blue-600 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg hover:bg-blue-700 transition';
     judgeHelpIcon.textContent = '?';
@@ -982,6 +983,7 @@ rounds.push({
   judges: judgeNames,
   criteriaCount,
   totalContestants,
+  eventName: eventNameSnapshot, // event name syncing (admin dashboard)
   savedImages: { ...roundImages },
   criteria: Array.from(criteriaList.querySelectorAll('.criteria-title')).map(titleEl => {
     const block = titleEl.closest('.criteria-block') || titleEl.parentElement;
@@ -995,19 +997,19 @@ rounds.push({
 });
 
 closeFinalizationModal();
-alert(`✅ Tabulation finalized successfully! Total Judges: ${window.totalJudges}`);
+alert(` Tabulation finalized successfully! Total Judges: ${window.totalJudges}`);
 
 isFirstRoundFinalized = true;
-disableMainHelpModal = true;   // 🔒 lock help modal forever
+disableMainHelpModal = true;   //  lock help modal forever
 showPage('processContainer');
 
-// 🔒 Hide the main help modal after first finalize
+//  Hide the main help modal after first finalize
 helpModal.classList.remove('show');
 helpModal.classList.add('hidden');
-helpModal.style.display = 'none';   // 🔒 force hide
+helpModal.style.display = 'none';   //  force hide
 if (helpIcon) helpIcon.style.display = 'none';
 
-// ✅ Render scoreboard per round
+//  Render scoreboard per round
 renderScoreboard();
 });
 
@@ -1093,7 +1095,7 @@ function renderScoreboard() {
     section.className = 'round-gallery-section';
     section.dataset.round = roundNumber;
 
-// ✅ Add vertical spacing between rounds
+//  Add vertical spacing between rounds
     section.style.marginBottom = '3rem'; // 48px spacing
 
     const title = document.createElement('h3');
@@ -1122,7 +1124,7 @@ function renderScoreboard() {
       card.dataset.contestant = contestantId;
 
       const img = document.createElement('img');
-      img.src = 'Anonymous photo.jpg';
+      img.src = 'Anonymousphoto.jpg';
       img.className = 'w-full rounded mb-2';
 
       const percent = document.createElement('p');
@@ -1175,7 +1177,7 @@ window.addEventListener('judgeTotalsUpdate', e => {
   refreshRound(roundNumber);
 });
 
-// 🔥 REQUIRED INITIAL RENDER
+//  REQUIRED INITIAL RENDER
 document.addEventListener('DOMContentLoaded', renderScoreboard);
 
 // =======================
@@ -1330,7 +1332,7 @@ manualAddRoundBtn.addEventListener('click', () => {
       helpContent.style.alignItems = 'center';
     }
 
-    alert(`🆕 Starting Round ${currentRound.roundNumber} — review criteria first, then click Edit Criteria to modify.`);
+    alert(` Starting Round ${currentRound.roundNumber} — review criteria first, then click Edit Criteria to modify.`);
   });
 
   addRoundNo.addEventListener('click', () => {
@@ -1338,7 +1340,7 @@ manualAddRoundBtn.addEventListener('click', () => {
     addRoundModal.classList.add('hidden');
 
     isFirstRoundFinalized = true;
-    alert(`✅ Round ${currentRound.roundNumber} finalized. No additional rounds will be added.`);
+    alert(` Round ${currentRound.roundNumber} finalized. No additional rounds will be added.`);
     showPage('processContainer');
   });
 
@@ -1350,77 +1352,74 @@ manualAddRoundBtn.addEventListener('click', () => {
 
 
 // ======================= 
-// DEPLOY BUTTON (ROUND-CORRECT + ACTIVE ROUND CONTROL)
+// DEPLOY BUTTON (Round-Correct + Active Round Control)
 // =======================
-
 document.addEventListener('DOMContentLoaded', () => {
   const deployBtn = document.getElementById('deployBtn');
+  const exportBtn = document.getElementById('exportBtn'); // reference Export button
   if (!deployBtn) return;
 
   deployBtn.addEventListener('click', async () => {
     const updatedRounds = Array.isArray(rounds) ? rounds : [];
     if (updatedRounds.length === 0) {
-      alert('ℹ️ No rounds to deploy.');
+      alert('ℹ No rounds to deploy.');
       return;
     }
 
     try {
-      // =========================
-      // 1️⃣ SANITIZE ROUNDS
-      // =========================
+      // 1️ SANITIZE ROUNDS
       for (const round of updatedRounds) {
-        const titles = Array.from(
-          document.querySelectorAll('#criteriaList .criteria-title')
-        );
-
-        round.criteria = titles.map(titleEl => {
-          const block =
-            titleEl.closest('.criteria-block') ||
-            titleEl.parentElement;
-
-          const items = Array.from(block.querySelectorAll('li'))
-            .map(li => li.textContent.trim());
-
-          return {
-            name: titleEl.textContent.trim(),
-            maxPoints: '',
-            items
-          };
-        });
+        if (!round.criteria || round.roundNumber === currentRound.roundNumber) {
+          const titles = Array.from(document.querySelectorAll('#criteriaList .criteria-title'));
+          round.criteria = titles.map(titleEl => {
+            const block = titleEl.closest('.criteria-block') || titleEl.parentElement;
+            const items = Array.from(block.querySelectorAll('li')).map(li => li.textContent.trim());
+            return { name: titleEl.textContent.trim(), maxPoints: '', items };
+          });
+        }
 
         // IMAGE SANITIZATION
         const sanitizedImages = {};
         const savedImages = round.savedImages || {};
-
         for (const [contestantId, imgData] of Object.entries(savedImages)) {
           try {
-            if (
-              imgData instanceof File ||
-              (typeof imgData === 'string' && !imgData.startsWith('http'))
-            ) {
+            if (imgData instanceof File || (typeof imgData === 'string' && !imgData.startsWith('http'))) {
               const url = await uploadImageToCloudinary(imgData);
               sanitizedImages[contestantId] = url;
             } else {
               sanitizedImages[contestantId] = imgData;
             }
           } catch (err) {
-            console.error(`❌ Image upload failed for contestant ${contestantId}`, err);
+            console.error(` Image upload failed for contestant ${contestantId}`, err);
           }
         }
-
         round.savedImages = sanitizedImages;
       }
 
-      // =========================
-      // 2️⃣ SAVE PROCESS HTML
-      // =========================
+      // 2️ SAVE PROCESS HTML SNAPSHOT
       const processContainerEl = document.getElementById('processContainer');
       if (processContainerEl) {
         const cloned = processContainerEl.cloneNode(true);
         const currentUser = localStorage.getItem('currentUser') || '';
+        const roundsData = JSON.parse(localStorage.getItem('roundsData') || '[]');
 
-        cloned.querySelectorAll('.judge-table-container').forEach(table => {
-          if (!table.dataset.judge) table.dataset.judge = currentUser;
+        cloned.querySelectorAll('.judge-table-container').forEach((card, idx) => {
+          const roundAttr = card.dataset.round;
+          card.dataset.judge = String(idx + 1);
+
+          const headerText = (card.querySelector('h3')?.textContent || '').trim();
+          let headerJudgeName = '';
+          const match = headerText.match(/Judge\s*\d+:\s*(.+)$/i);
+          if (match) headerJudgeName = match[1].trim();
+
+          let mappedJudgeName = '';
+          if (roundAttr) {
+            const rd = roundsData.find(r => String(r.roundNumber) === String(roundAttr));
+            mappedJudgeName = (rd?.judges || [])[idx] || '';
+          }
+
+          const finalJudgeName = headerJudgeName || mappedJudgeName || currentUser;
+          card.dataset.judgeName = finalJudgeName;
         });
 
         cloned.querySelectorAll('.help-icon').forEach(icon => {
@@ -1430,90 +1429,277 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('processHTML', cloned.innerHTML.trim());
       }
 
-      // =========================
-      // 3️⃣ DEPLOY META (🔥 FIX HERE)
-      // =========================
-      const highestRoundNumber = Math.max(
-        ...updatedRounds.map(r => Number(r.roundNumber) || 1)
-      );
-
+      //  DEPLOY META
+      const highestRoundNumber = Math.max(...updatedRounds.map(r => Number(r.roundNumber) || 1));
       localStorage.setItem('roundsData', JSON.stringify(updatedRounds));
       localStorage.setItem('adminRunning', 'true');
-
-      // 🔥 SINGLE SOURCE OF TRUTH (CRITICAL)
-      localStorage.setItem(
-        'activeRound',
-        String(highestRoundNumber)
-      );
-
-      // (keep for reference/history)
-      localStorage.setItem(
-        'lastDeployedRoundNumber',
-        String(highestRoundNumber)
-      );
-
+      localStorage.setItem('activeRound', String(highestRoundNumber));
+      localStorage.setItem('lastDeployedRoundNumber', String(highestRoundNumber));
       localStorage.setItem('lastDeployTime', Date.now().toString());
 
-      alert(
-        `🚀 Deployment complete! ACTIVE ROUND: ${highestRoundNumber}\nJudges will now submit to this round only.`
-      );
+      alert(` Deployment complete! ACTIVE ROUND: ${highestRoundNumber}\nJudges will now submit to this round only.`);
+
+      if (typeof renderMonitoringTables === 'function') {
+        renderMonitoringTables();
+      }
+
+      //  Show Export button after successful deploy
+      if (exportBtn) exportBtn.classList.remove('hidden');
 
     } catch (err) {
       console.error(err);
-      alert(`❌ Deployment failed:\n${err.message}`);
+      alert(` Deployment failed:\n${err.message}`);
     }
   });
 });
 
-// UPDATED CODE 
+// =======================
+// EXPORT BUTTON LOGIC (ADMIN DASHBOARD PER ROUND)
+// =======================
+const exportModal = document.getElementById('exportModal');
+const exportRoundSelect = document.getElementById('exportRoundSelect');
+const exportFormatSelect = document.getElementById('exportFormatSelect');
+const cancelExport = document.getElementById('cancelExport');
+const confirmExport = document.getElementById('confirmExport');
+const exportBtn = document.getElementById('exportBtn');
+
+exportBtn?.addEventListener('click', () => {
+  exportRoundSelect.innerHTML = '';
+  const roundsData = JSON.parse(localStorage.getItem('roundsData') || '[]');
+
+  if (!roundsData.length) {
+    alert(" No rounds available to export.");
+    return;
+  }
+
+  roundsData.forEach(round => {
+    const opt = document.createElement('option');
+    opt.value = round.roundNumber;
+    opt.textContent = `Round ${round.roundNumber}`;
+    exportRoundSelect.appendChild(opt);
+  });
+
+  exportModal.classList.remove('hidden');
+});
+
+cancelExport?.addEventListener('click', () => {
+  exportModal.classList.add('hidden');
+});
+
+confirmExport?.addEventListener('click', async () => {
+  const roundNumber = exportRoundSelect.value;
+  const format = exportFormatSelect.value;
+
+  if (!roundNumber) {
+    alert(" Please select a round to export.");
+    return;
+  }
+
+  const judgeCards = Array.from(document.querySelectorAll(`.judge-table-container[data-round="${roundNumber}"]`));
+  if (!judgeCards.length) {
+    alert(` Judge tables not found for Round ${roundNumber}.`);
+    return;
+  }
+
+  const clonedContainer = document.createElement('div');
+  clonedContainer.style.position = 'absolute';
+  clonedContainer.style.left = '-9999px';
+  clonedContainer.style.top = '0';
+  clonedContainer.style.display = 'block';
+  clonedContainer.style.width = '70%';
+  clonedContainer.style.boxSizing = 'border-box';
+
+  const header = document.createElement('h2');
+  header.textContent = `Round ${roundNumber} — Judge Tables`;
+  header.style.textAlign = 'center';
+  header.style.marginBottom = '1rem';
+  header.style.fontFamily = 'Arial, sans-serif';
+  clonedContainer.appendChild(header);
+
+  const totalsKey = `judgeTotals_round_${roundNumber}`;
+  let totalsData = {};
+  try {
+    totalsData = JSON.parse(localStorage.getItem(totalsKey) || '{}');
+  } catch {}
+
+  // Track seen judges to avoid exporting the same judge twice (prevents duplicates)
+  const seenJudges = new Set();
+
+  judgeCards.forEach(card => {
+    // Determine a stable judge identifier
+    const judgeId = (card.dataset.judge || card.dataset.judgeName || card.querySelector('.judge-name')?.textContent || '').toString().trim().toLowerCase();
+    if (judgeId) {
+      if (seenJudges.has(judgeId)) return; // skip duplicate judge cards
+      seenJudges.add(judgeId);
+    }
+
+    // Find the first table that actually contains score content
+    const tables = Array.from(card.querySelectorAll('table'));
+    const validTable = tables.find(tbl =>
+      Array.from(tbl.querySelectorAll('td')).some(td => td.textContent.trim() !== '')
+    );
+
+    if (!validTable) return; // skip if no filled table found
+
+    // Build a fresh wrapper (do not clone the whole card to avoid bringing empty/duplicate tables)
+    const wrapper = document.createElement('div');
+    wrapper.style.marginBottom = '2rem';
+    wrapper.style.background = '#fff';
+    wrapper.style.borderRadius = '0.75rem';
+    wrapper.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+    wrapper.style.padding = '1rem';
+
+    // Optional judge header
+    const judgeName = card.dataset.judgeName || card.querySelector('.judge-name')?.textContent || card.dataset.judge || '';
+    if (judgeName) {
+      const judgeHeader = document.createElement('h3');
+      judgeHeader.textContent = `Judge: ${judgeName.trim()}`;
+      judgeHeader.style.textAlign = 'center';
+      judgeHeader.style.marginBottom = '0.5rem';
+      judgeHeader.style.fontFamily = 'Arial, sans-serif';
+      wrapper.appendChild(judgeHeader);
+    }
+
+    // Clone only the valid table (first filled one)
+    const clonedTable = validTable.cloneNode(true);
+    clonedTable.style.borderCollapse = 'collapse';
+    clonedTable.style.width = '60%';
+    clonedTable.style.minWidth = '670px';
+
+    // Normalize cells styling
+    clonedTable.querySelectorAll('th, td').forEach(cell => {
+      cell.style.border = '1px solid #000';
+      cell.style.padding = '0.35rem';
+      cell.style.fontWeight = '600';
+      cell.style.textAlign = 'center';
+    });
+
+    wrapper.appendChild(clonedTable);
+    clonedContainer.appendChild(wrapper);
+  });
+
+  // If nothing valid was appended, inform user and abort
+  if (!clonedContainer.querySelector('table')) {
+    alert(' No filled judge tables found to export.');
+    return;
+  }
+
+  document.body.appendChild(clonedContainer);
+  const fileName = `Round${roundNumber}_JudgeTables.${format}`;
+
+  // Helper to dynamically load a script (used for html-docx-js fallback)
+  const loadScript = (src) => new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) return resolve();
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = () => resolve();
+    s.onerror = () => reject(new Error('Failed to load script: ' + src));
+    document.head.appendChild(s);
+  });
+
+  try {
+    if (format === 'pdf') {
+      const { jsPDF } = window.jspdf;
+      const canvas = await html2canvas(clonedContainer, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL('image/png');
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgProps = pdf.getImageProperties(imgData);
+      const ratio = Math.min(pageWidth / imgProps.width, pageHeight / imgProps.height);
+
+      pdf.addImage(imgData, 'PNG', 10, 10, imgProps.width * ratio, imgProps.height * ratio);
+      pdf.save(fileName);
+    }
+    else if (format === 'docx') {
+      // Build HTML content with inline styles for Word compatibility
+      const content = `
+        <html>
+          <head>
+            <meta charset="utf-8">
+            <style>
+              body { font-family: Arial, sans-serif; }
+              h2, h3 { text-align: center; margin-bottom: 10px; }
+              table { border-collapse: collapse; width: 100%; }
+              th, td { border: 1px solid #000; padding: 6px; text-align: center; }
+            </style>
+          </head>
+          <body>${clonedContainer.innerHTML}</body>
+        </html>
+      `;
+
+      // Try to use html-docx-js if available; otherwise attempt to load it from CDN
+      if (!(window.htmlDocx && typeof window.htmlDocx.asBlob === 'function')) {
+        try {
+          await loadScript('https://unpkg.com/html-docx-js/dist/html-docx.js');
+        } catch (loadErr) {
+          console.warn('Could not load html-docx-js from CDN, falling back to HTML blob:', loadErr);
+        }
+      }
+
+      if (window.htmlDocx && typeof window.htmlDocx.asBlob === 'function') {
+        try {
+          const converted = window.htmlDocx.asBlob(content);
+          const url = URL.createObjectURL(converted);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        } catch (e) {
+          console.error('DOCX conversion (htmlDocx) failed:', e);
+          alert('❌ DOCX conversion failed.');
+        }
+      } else {
+        // Fallback: create a Word-compatible HTML blob (opens in Word/LibreOffice)
+        try {
+          const blob = new Blob([content], { type: 'application/msword' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = fileName;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        } catch (e) {
+          console.error('DOCX fallback failed:', e);
+          alert(' DOCX export failed.');
+        }
+      }
+    }
+    else {
+      alert(" Unsupported format.");
+    }
+  } catch (err) {
+    console.error(" Export failed:", err);
+    alert(` Export failed: ${err.message}`);
+  } finally {
+    // Ensure cleanup even on error
+    if (clonedContainer.parentNode) {
+      document.body.removeChild(clonedContainer);
+    }
+    exportModal.classList.add('hidden');
+  }
+});
+
+// =======================
+// CRITERIA MODAL TOGGLE
+// =======================
 const criteriaBtn = document.getElementById("criteriaBtn");
 const criteriaModal = document.getElementById("criteriaModal");
 const closeCriteria = document.getElementById("closeCriteria");
 
-criteriaBtn.addEventListener("click", () => {
-  criteriaModal.classList.add("show");
-});
+criteriaBtn?.addEventListener("click", () => criteriaModal.classList.add("show"));
+closeCriteria?.addEventListener("click", () => criteriaModal.classList.remove("show"));
+criteriaModal?.addEventListener("click", (e) => { if (e.target === criteriaModal) criteriaModal.classList.remove("show"); });
 
-closeCriteria.addEventListener("click", () => {
-  criteriaModal.classList.remove("show");
-});
-
-criteriaModal.addEventListener("click", (e) => {
-  if (e.target === criteriaModal) {
-    criteriaModal.classList.remove("show");
-  }
-});
-deployBtn.addEventListener('click', () => {
-    try {
-        const roundsContainer = document.getElementById('roundsContainer');
-        if (!roundsContainer) {
-            alert("Nothing to deploy!");
-            return;
-        }
-
-        // 1. Get the current layout
-        const fullContent = roundsContainer.innerHTML;
-
-        // 2. CRITICAL FIX: Clear the "Quota" before saving the new larger data
-        localStorage.removeItem('processHTML');
-        localStorage.removeItem('lastDeployTime');
-
-        // 3. Save the new state
-        localStorage.setItem('processHTML', fullContent);
-        localStorage.setItem('lastDeployTime', Date.now().toString());
-        localStorage.setItem('adminRunning', 'true');
-
-        alert("✅ Round Deployed! Space optimized for unlimited rounds.");
-    } catch (e) {
-        console.error("Deploy failed", e);
-        if (e.name === 'QuotaExceededError') {
-            alert("❌ Storage Full! Please clear the Judge page data or use smaller images.");
-        } else {
-            alert("❌ Error: " + e.message);
-        }
-    }
-});
-
+// =======================
+// IMAGE COMPRESSION HELPER
+// =======================
 async function compressImage(base64Str, maxWidth = 400) {
   return new Promise((resolve) => {
     const img = new Image();
@@ -1525,23 +1711,228 @@ async function compressImage(base64Str, maxWidth = 400) {
       canvas.height = img.height * scale;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      resolve(canvas.toDataURL('image/jpeg', 0.7)); // Compresses to 70% quality
+      resolve(canvas.toDataURL('image/jpeg', 0.7)); // 70% quality
     };
   });
 }
-// ... inside your fileInput.addEventListener('change' ...
+
+// Example usage inside file input change
 reader.onload = async ev => {
-    const rawImageData = ev.target.result;
-    
-    // COMPRESS BEFORE SAVING
-    const compressedData = await compressImage(rawImageData);
+  const rawImageData = ev.target.result;
+  const compressedData = await compressImage(rawImageData);
 
-    const alreadyUsed = Object.values(tempImages).includes(compressedData);
-    if (alreadyUsed) {
-        alert("❌ Photo already used.");
-        return;
-    }
+  const alreadyUsed = Object.values(tempImages).includes(compressedData);
+  if (alreadyUsed) {
+    alert("❌ Photo already used.");
+    return;
+  }
 
-    tempImages[targetNum] = compressedData;
-    alert(`✅ Photo assigned to #${targetNum}.`);
+  tempImages[targetNum] = compressedData;
+  alert(`✅ Photo assigned to #${targetNum}.`);
 };
+
+// =======================
+// ADMIN MONITORING RENDERER (READ-ONLY, SAME VISUALS)
+// =======================
+function renderMonitoringTables() {
+  const container = document.getElementById('monitorContainer');
+  if (!container) return;
+
+  const roundsData = JSON.parse(localStorage.getItem('roundsData') || '[]');
+  const adminRunning = localStorage.getItem('adminRunning');
+  const lastDeployTime = localStorage.getItem('lastDeployTime');
+
+  // Empty state
+  if (adminRunning !== 'true' || !lastDeployTime || roundsData.length === 0) {
+    container.innerHTML = `
+      <div class="flex flex-col items-center justify-center mt-10 text-gray-500">
+        <p class="text-lg font-semibold mb-2">No deployed rounds yet</p>
+        <p class="text-sm">Please deploy rounds to start monitoring</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = '';
+
+  // Helper: sanitize judge name to a stable key
+const sanitizeJudgeName = (name) =>
+  String(name || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '_')
+    .replace(/[^a-z0-9_]/g, '');
+
+roundsData.forEach(round => {
+  const roundNumber = Number(round.roundNumber);
+  const section = document.createElement('div');
+  section.className = 'round-gallery-section mb-6';
+  section.innerHTML = `
+    <h2 class="text-xl font-bold text-indigo-600 mb-4 text-center">
+      ROUND ${roundNumber} — ${round.eventName || 'Event'}
+    </h2>
+  `;
+
+  (round.judges || []).forEach((judgeName, jIndex) => {
+    const card = document.createElement('div');
+    card.className = 'judge-table-container bg-white rounded-lg shadow p-4 mb-4';
+    card.dataset.judge = String(jIndex + 1);
+    card.dataset.judgeName = judgeName;
+    card.dataset.round = round.roundNumber;
+    
+    const header = document.createElement('h3');
+    header.className = 'text-lg font-semibold mb-2 text-center';
+    header.textContent = `Judge ${jIndex + 1}: ${judgeName}`;
+    card.appendChild(header);
+
+    const table = document.createElement('table');
+    table.className = 'table-auto w-full text-center border';
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+
+    headerRow.innerHTML = `<th>Contestant</th>` +
+      (round.criteria || []).map(c => `<th>${c.name}</th>`).join('');
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement('tbody');
+
+    // Round-correct totals
+    const totalsKey = `judgeTotals_round_${roundNumber}`;
+    let totalsData = {};
+    try { totalsData = JSON.parse(localStorage.getItem(totalsKey) || '{}'); } catch {}
+
+    //  Unified read: judgeName key first, fallback to tableIndex keys
+    const judgeKeyName = sanitizeJudgeName(judgeName);
+    const scoresKeyByName = `scores_round_${roundNumber}_judge_${judgeKeyName}`;
+
+    let savedScores = {};
+    try { savedScores = JSON.parse(localStorage.getItem(scoresKeyByName) || '{}'); } catch {}
+
+    if (!Object.keys(savedScores).length) {
+      const scoresKeyByIndex0 = `scores_round_${roundNumber}_table_${jIndex}`;
+      const scoresKeyByIndex1 = `scores_round_${roundNumber}_table_${jIndex + 1}`;
+      try { savedScores = JSON.parse(localStorage.getItem(scoresKeyByIndex0) || '{}'); } catch {}
+      if (!Object.keys(savedScores).length) {
+        try { savedScores = JSON.parse(localStorage.getItem(scoresKeyByIndex1) || '{}'); } catch {}
+      }
+    }
+ 
+      // Candidate judge keys (for totals)
+      const judgeKeyCandidates = [
+        `judge_${jIndex}`,            // 0-based
+        `judge_${jIndex + 1}`,        // 1-based
+        judgeKeyName,                 // by name
+        `table_${jIndex}`             // table index
+      ];
+
+      for (let i = 1; i <= round.totalContestants; i++) {
+        const tr = document.createElement('tr');
+
+        const tdIndex = document.createElement('td');
+        tdIndex.textContent = i;
+        tr.appendChild(tdIndex);
+
+        // Criteria cells — support multiple savedScores shapes
+        (round.criteria || []).forEach((_, ci) => {
+          const td = document.createElement('td');
+          const span = document.createElement('span');
+          span.className = 'score-input';
+
+          const rowData =
+            savedScores[i - 1] ??        // array-style, 0-based
+            savedScores[String(i)] ??    // object-style, "1"
+            savedScores[i] ??            // object-style, 1
+            null;
+
+          let scoreValue;
+          if (Array.isArray(rowData)) {
+            scoreValue = rowData[ci];
+          } else if (rowData && typeof rowData === 'object') {
+            const criteriaName = (round.criteria || [])[ci]?.name;
+            scoreValue =
+              rowData[ci] ??
+              (criteriaName && rowData[criteriaName]) ??
+              (Array.isArray(rowData.scores) ? rowData.scores[ci] : undefined);
+          } else {
+            scoreValue = undefined;
+          }
+
+          span.textContent =
+            scoreValue !== undefined && scoreValue !== null
+              ? String(scoreValue)
+              : '';
+
+          td.appendChild(span);
+          tr.appendChild(td);
+        });
+
+        // Total display — try multiple judge keys to match judge-side storage
+        const totalSpan = document.createElement('span');
+        totalSpan.className = 'score-total';
+
+        const contestantTotals = totalsData[String(i)] || {};
+        let sum = 0;
+        for (const key of judgeKeyCandidates) {
+          if (contestantTotals[key] !== undefined) {
+            sum = Number(contestantTotals[key]) || 0;
+            break;
+          }
+        }
+
+        const capped = Math.min(sum, 100);
+        totalSpan.textContent = `= ${capped}pts`;
+        tr.appendChild(totalSpan);
+
+        tbody.appendChild(tr);
+      }
+
+      table.appendChild(tbody);
+      card.appendChild(table);
+      section.appendChild(card);
+    });
+
+    container.appendChild(section);
+  });
+}
+
+// =======================
+// REAL-TIME UPDATES FOR ADMIN MONITORING (multi-round aware)
+// =======================
+window.addEventListener('storage', e => {
+  if (!e.key) return;
+
+  const match = e.key.match(/^judgeTotals_round_(\d+)$/);
+  if (match) {
+    const roundNumber = Number(match[1]);
+    refreshRound(roundNumber);        // refresh tamang round
+    return;
+  }
+
+  if (e.key === 'roundsData' || e.key === 'lastDeployTime') {
+    renderMonitoringTables();         // rebuild lahat ng rounds
+  }
+});
+
+try {
+  const bc = new BroadcastChannel('judge-totals');
+  bc.onmessage = msg => {
+    const { roundNumber } = msg.data || {};
+    if (roundNumber) {
+      refreshRound(Number(roundNumber));   // refresh tamang round
+    }
+    renderMonitoringTables();              // rebuild monitoring view
+  };
+} catch {}
+
+window.addEventListener('judgeTotalsUpdate', e => {
+  const { roundNumber } = e.detail || {};
+  if (roundNumber) {
+    refreshRound(Number(roundNumber));     // refresh tamang round
+  }
+  renderMonitoringTables();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderMonitoringTables();
+});
